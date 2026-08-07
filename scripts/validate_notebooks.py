@@ -76,12 +76,56 @@ CODE_REQUIREMENTS = {
         "WATERSHED_SELECTION_READY = True",
         'print("Readiness check complete. Continue to Lab 1.")',
     ],
+    "03_Change_and_Uncertainty.ipynb": [
+        "paired_calibration = pd.DataFrame(paired_rows)",
+        'runoff(DESIGN_DEPTH_IN, fitted.cn_inf, lam=lam)',
+    ],
 }
+
+
+def validate_markdown_math(markdown: str, path: Path) -> None:
+    """Require GitHub/Colab dollar delimiters and balanced math spans."""
+    legacy_inline = [token for token in (r"\(", r"\)") if token in markdown]
+    legacy_display = [
+        line.strip()
+        for line in markdown.splitlines()
+        if line.strip() in {r"\[", r"\]"}
+    ]
+    if legacy_inline or legacy_display:
+        found = sorted(set(legacy_inline + legacy_display))
+        raise ValueError(f"legacy math delimiters {found!r} in {path.name}")
+
+    if markdown.count("$$") % 2:
+        raise ValueError(f"unbalanced display-math delimiters in {path.name}")
+
+    mixed_display_lines = [
+        line for line in markdown.splitlines() if "$$" in line and line.strip() != "$$"
+    ]
+    if mixed_display_lines:
+        raise ValueError(f"display math must use standalone $$ lines in {path.name}")
+
+    without_display = markdown.replace("$$", "")
+    if without_display.count("$") % 2:
+        raise ValueError(f"unbalanced inline-math delimiters in {path.name}")
+
+    unbalanced_inline_lines = [
+        line for line in without_display.splitlines() if line.count("$") % 2
+    ]
+    if unbalanced_inline_lines:
+        raise ValueError(f"inline math must close on the same line in {path.name}")
 
 
 def validate(path: Path) -> None:
     notebook = nbformat.read(path, as_version=4)
     nbformat.validate(notebook)
+
+    empty_cells = [
+        index
+        for index, cell in enumerate(notebook.cells)
+        if not cell.source.strip()
+    ]
+    if empty_cells:
+        raise ValueError(f"empty cells {empty_cells!r} in {path.name}")
 
     cell_ids = [cell.id for cell in notebook.cells]
     if len(cell_ids) != len(set(cell_ids)):
@@ -90,6 +134,7 @@ def validate(path: Path) -> None:
     markdown = "\n".join(
         cell.source for cell in notebook.cells if cell.cell_type == "markdown"
     )
+    validate_markdown_math(markdown, path)
     for required_text in CONTENT_REQUIREMENTS.get(path.name, []):
         if required_text not in markdown:
             raise ValueError(f"missing {required_text!r} in {path.name}")

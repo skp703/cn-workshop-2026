@@ -475,22 +475,22 @@ def build_lab1():
         maximum retention $S$, and initial abstraction $I_a$, the standard
         equations in inch units are
 
-        \[
+        $$
         S = \frac{1000}{CN} - 10,
         \qquad I_a = \lambda S,
-        \]
+        $$
 
-        \[
+        $$
         Q = \begin{cases}
         0, & P \le I_a,\\[4pt]
         \dfrac{(P-I_a)^2}{P+(1-\lambda)S}, & P>I_a.
         \end{cases}
-        \]
+        $$
 
         A curve number is therefore a dimensionless transformation of $S$;
         it is not a directly observed land-surface property. Larger CN implies
         smaller retention, a smaller rainfall threshold, and greater runoff for
-        the same event. The conventional value \(\lambda=0.20\) specifies the
+        the same event. The conventional value $\lambda=0.20$ specifies the
         assumed fraction of retention that must be satisfied before runoff
         begins.
         '''),
@@ -579,10 +579,10 @@ def build_lab1():
         to $S$, enters both the threshold and denominator, and appears inside
         a squared numerator. Consequently,
 
-        \[
+        $$
         Q\!\left(P,\sum_i w_i CN_i\right)
         \ne \sum_i w_i Q(P,CN_i)
-        \]
+        $$
 
         in general. The left side is a lumped calculation; the right side
         computes runoff for each hydrologically distinct subarea and then
@@ -690,8 +690,8 @@ def build_lab1():
         Lambda is not an independent switch applied after CN has been selected.
         Event-derived and table-derived curve numbers are conditional on the
         lambda used in the runoff equation. A CN calibrated with
-        \(\lambda=0.20\) should therefore be converted or refitted before it is
-        used with \(\lambda=0.05\).
+        $\lambda=0.20$ should therefore be converted or refitted before it is
+        used with $\lambda=0.05$.
 
         `cn05_from_cn20` implements the Hawkins et al. (2003) empirical
         conversion. The converted CN is numerically lower because the smaller
@@ -734,7 +734,7 @@ def build_lab1():
         md(r'''
         ## Step 7 — Invert observed rainfall and runoff to event curve numbers
 
-        For an observed event pair \((P,Q)\), `CN_from_PQ` algebraically inverts
+        For an observed event pair $(P,Q)$, `CN_from_PQ` algebraically inverts
         the same runoff equation for a specified lambda. Each valid event
         produces an event-derived CN. These values vary with storm depth,
         antecedent state, measurement error, and model adequacy; the variation
@@ -771,11 +771,11 @@ def build_lab1():
 
         `fit_asymptotic` then fits the Hawkins standard relation
 
-        \[
+        $$
         CN(P)=CN_{\infty}+(100-CN_{\infty})e^{-kP}
-        \]
+        $$
 
-        by nonlinear least squares. \(CN_{\infty}\) is the large-storm
+        by nonlinear least squares. $CN_{\infty}$ is the large-storm
         asymptote, $k$ controls the rate of approach, and $R^2$ describes
         how much of the event-CN variation is explained by this specific
         functional form. The fit does not establish that the watershed has a
@@ -845,7 +845,7 @@ def build_lab1():
         2. Which convention you would report for a heterogeneous watershed.
         3. One sentence explaining why lambda must be reported with CN.
         4. One sentence distinguishing the table composite from
-           \(CN_{\infty}\).
+           $CN_{\infty}$.
 
         **Source anchors:** NEH-630 Chapter 10 equations 10-1 and 10-11;
         TR-55 Worksheet 2; Woodward et al. (2003), DOI
@@ -1191,9 +1191,9 @@ def build_lab2():
         soil-group percentages. Crossing those two marginal tables assumes they
         are statistically independent:
 
-        \[
+        $$
         A_{ij}=A\,p(LC_i)\,p(HSG_j).
-        \]
+        $$
 
         The reference pathway performs that product explicitly. Earth Engine
         instead observes the joint distribution by packing each pixel's land-
@@ -1512,9 +1512,9 @@ def build_lab3():
 
         For year $t$, the area-weighted curve number is
 
-        \[
+        $$
         CN_t=\frac{\sum_i A_{i,t}CN_i}{\sum_i A_{i,t}},
-        \]
+        $$
 
         where $A_{i,t}$ is the area of land-cover–soil pair $i$ in year
         $t$, and $CN_i$ is the lookup value assigned to that pair. Across
@@ -1704,9 +1704,9 @@ def build_lab3():
         $I_a=\lambda S$, the physically admissible root is used to recover
         $S$, followed by
 
-        \[
+        $$
         CN=\frac{1000}{S+10}.
-        \]
+        $$
 
         Event CN is therefore a transformed observation, not a direct sensor
         measurement. It depends on rainfall, hydrograph separation and runoff
@@ -1742,9 +1742,9 @@ def build_lab3():
         standard response represents a decreasing sequence that approaches a
         stable value as rainfall increases:
 
-        \[
+        $$
         CN(P)=CN_{\infty}+(100-CN_{\infty})e^{-kP}.
-        \]
+        $$
 
         `fit_asymptotic` first derives event CN with the specified lambda, then
         uses bounded nonlinear least squares to estimate $CN_{\infty}$ and
@@ -1823,6 +1823,38 @@ def build_lab3():
         Compare the two fitted $CN_{\infty}$ values and their diagnostics.
         A better fit under one lambda is evidence about this event sample, not
         a universal conversion factor for another watershed.
+        '''),
+        code(r'''
+        gage_names = {
+            "01646000": "Difficult Run",
+            "01654000": "Accotink Creek",
+        }
+        paired_rows = []
+        for (gage, lam), fitted in fitted_objects.items():
+            paired_rows.append(
+                {
+                    "watershed": gage_names[gage],
+                    "lambda": lam,
+                    "CN_infinity": fitted.cn_inf,
+                    "events_fitted": fitted.n_events,
+                    "R_squared": fitted.r2,
+                    "runoff_at_design_depth_in": float(
+                        runoff(DESIGN_DEPTH_IN, fitted.cn_inf, lam=lam)
+                    ),
+                }
+            )
+
+        paired_calibration = pd.DataFrame(paired_rows).sort_values(
+            ["watershed", "lambda"], ascending=[True, False]
+        )
+        display(paired_calibration.round(3))
+        '''),
+        md(r'''
+        **Interpretation.** Compare lambda values within one watershed. The
+        fitted CN changes because the inverse event equation changes, while the
+        final runoff column places each fitted CN back inside its corresponding
+        equation. Report the CN, lambda, event count, and fit diagnostic as one
+        calibration record.
         '''),
         md(r'''
         ## Part 3 — Antecedent-condition conventions
