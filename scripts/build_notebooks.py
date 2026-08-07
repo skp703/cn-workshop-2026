@@ -904,6 +904,7 @@ def build_lab2():
 
         # Set True only when the readiness check has already passed.
         USE_EARTH_ENGINE = False
+        ADD_BACKGROUND_MAP = True
 
         # The outlet route produces a split catchment at the supplied point.
         # The gage route produces the NHDPlus aggregated upstream catchment.
@@ -1022,6 +1023,13 @@ def build_lab2():
         The reference boundary below is a compact workshop geometry for visual
         inspection. The recorded Earth Engine result also retains the full
         NLDI split-catchment area and vertex count used in the live analysis.
+
+        The map requests the public **USGS Topo** basemap from The National Map.
+        It provides geographic names, transportation, hydrography, elevation,
+        land cover, and administrative context beneath the analytical boundary.
+        The basemap is cartographic context only; it is not used to calculate
+        area, land cover, soils, or curve number. Source:
+        [USGS National Map basemap services](https://www.usgs.gov/faqs/what-are-base-map-services-or-urls-used-national-map).
         '''),
         code(r'''
         recorded = None
@@ -1054,6 +1062,49 @@ def build_lab2():
         area_check
         '''),
         code(r'''
+        import io
+        import urllib.parse
+        import urllib.request
+
+        from PIL import Image
+        from matplotlib.ticker import FormatStrFormatter, MaxNLocator
+
+        def add_usgs_topo_basemap(ax, bounds):
+            """Draw a USGS Topo export beneath EPSG:4326 analytical layers."""
+            west, south, east, north = bounds
+            parameters = {
+                "bbox": ",".join(str(value) for value in bounds),
+                "bboxSR": 4326,
+                "imageSR": 4326,
+                "size": "1000,800",
+                "format": "png32",
+                "transparent": "false",
+                "f": "image",
+            }
+            endpoint = (
+                "https://basemap.nationalmap.gov/arcgis/rest/services/"
+                "USGSTopo/MapServer/export"
+            )
+            request = urllib.request.Request(
+                endpoint + "?" + urllib.parse.urlencode(parameters),
+                headers={"User-Agent": "cn-workshop-2026"},
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=30) as response:
+                    image = Image.open(io.BytesIO(response.read())).convert("RGB")
+                ax.imshow(
+                    np.asarray(image),
+                    extent=(west, east, south, north),
+                    interpolation="bilinear",
+                    zorder=0,
+                    aspect="auto",
+                )
+                return "USGS Topo loaded"
+            except Exception as exc:
+                ax.set_facecolor("#eef1ec")
+                return "USGS Topo request noted: %s" % type(exc).__name__
+
+
         geometry_for_plot = (
             live_watershed.geojson["geometry"]
             if live_watershed is not None
@@ -1065,17 +1116,85 @@ def build_lab2():
             else [ring for polygon in geometry_for_plot["coordinates"] for ring in polygon]
         )
 
-        fig, ax = plt.subplots(figsize=(6.2, 5.5))
-        for ring in rings:
-            coordinates = np.asarray(ring)
-            ax.fill(coordinates[:, 0], coordinates[:, 1], color="#5ca6a6", alpha=0.28)
-            ax.plot(coordinates[:, 0], coordinates[:, 1], color="#17274f", lw=1.4)
-        ax.plot(float(site["sample_lon"]), float(site["sample_lat"]), "o",
-                color="#b24d35", label="gage / outlet")
-        ax.set(xlabel="longitude", ylabel="latitude", title=site["name"])
-        ax.set_aspect(1.0 / np.cos(np.deg2rad(float(site["centroid_lat"]))))
-        ax.legend()
-        ax.grid(alpha=0.18)
+        coordinate_arrays = [np.asarray(ring, dtype=float) for ring in rings]
+        all_coordinates = np.vstack(coordinate_arrays)
+        west, south = all_coordinates.min(axis=0)
+        east, north = all_coordinates.max(axis=0)
+        longitude_padding = max((east - west) * 0.12, 0.01)
+        latitude_padding = max((north - south) * 0.12, 0.01)
+        map_bounds = (
+            west - longitude_padding,
+            south - latitude_padding,
+            east + longitude_padding,
+            north + latitude_padding,
+        )
+
+        fig, ax = plt.subplots(figsize=(8.2, 6.4))
+        basemap_status = (
+            add_usgs_topo_basemap(ax, map_bounds)
+            if ADD_BACKGROUND_MAP
+            else "background map disabled"
+        )
+        for coordinates in coordinate_arrays:
+            ax.fill(
+                coordinates[:, 0], coordinates[:, 1],
+                color="#38a3a5", alpha=0.18, zorder=2,
+            )
+            ax.plot(
+                coordinates[:, 0], coordinates[:, 1],
+                color="#17274f", lw=2.0, zorder=3,
+            )
+
+        marker_lat_lon = None
+        if live_watershed is not None:
+            marker_lat_lon = live_watershed.snapped_point or live_watershed.request_point
+        if marker_lat_lon is None and (
+            live_watershed is None or str(GAGE) == str(site["gage_number"])
+        ):
+            marker_lat_lon = (float(site["sample_lat"]), float(site["sample_lon"]))
+        if marker_lat_lon is not None:
+            marker_lat, marker_lon = marker_lat_lon
+            ax.plot(
+                marker_lon, marker_lat, "o", ms=7,
+                color="#b24d35", markeredgecolor="white", markeredgewidth=1.2,
+                label="gage / outlet", zorder=4,
+            )
+
+        map_title = (
+            site["name"]
+            if live_watershed is None
+            else "Selected watershed — %s" % live_watershed.method
+        )
+        ax.set(
+            xlim=(map_bounds[0], map_bounds[2]),
+            ylim=(map_bounds[1], map_bounds[3]),
+            xlabel="longitude",
+            ylabel="latitude",
+            title=map_title,
+        )
+        center_latitude = (map_bounds[1] + map_bounds[3]) / 2.0
+        ax.set_aspect(1.0 / np.cos(np.deg2rad(center_latitude)))
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=5))
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=6))
+        ax.xaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+        ax.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+        ax.annotate(
+            "N", xy=(0.965, 0.94), xytext=(0.965, 0.85),
+            xycoords="axes fraction", textcoords="axes fraction",
+            ha="center", va="center", fontsize=9, fontweight="bold",
+            arrowprops={"arrowstyle": "-|>", "color": "#17274f", "lw": 1.4},
+            zorder=5,
+        )
+        ax.text(
+            0.99, 0.01, "Basemap: USGS The National Map — USGS Topo",
+            transform=ax.transAxes, ha="right", va="bottom", fontsize=7,
+            color="#17274f", bbox={"facecolor": "white", "alpha": 0.78, "edgecolor": "none"},
+            zorder=5,
+        )
+        if marker_lat_lon is not None:
+            ax.legend()
+        ax.grid(alpha=0.16, color="#54636f")
+        print("background map:", basemap_status)
         plt.show()
         '''),
         md(r'''

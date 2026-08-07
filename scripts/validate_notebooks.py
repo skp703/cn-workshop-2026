@@ -76,6 +76,11 @@ CODE_REQUIREMENTS = {
         "WATERSHED_SELECTION_READY = True",
         'print("Readiness check complete. Continue to Lab 1.")',
     ],
+    "02_Build_CN_for_a_Watershed.ipynb": [
+        "ADD_BACKGROUND_MAP = True",
+        '"USGSTopo/MapServer/export"',
+        '"Basemap: USGS The National Map — USGS Topo"',
+    ],
     "03_Change_and_Uncertainty.ipynb": [
         "paired_calibration = pd.DataFrame(paired_rows)",
         'runoff(DESIGN_DEPTH_IN, fitted.cn_inf, lam=lam)',
