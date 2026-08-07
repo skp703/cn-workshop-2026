@@ -2,9 +2,9 @@
 
 ## Public path
 
-- [ ] Site loads from the repository Pages URL while signed out.
-- [ ] Every navigation link and download resolves under the repository subpath.
-- [ ] All four Colab links open the intended notebook from the public repository.
+- [x] Site loads from the repository Pages URL while signed out.
+- [x] Every navigation link and download resolves under the repository subpath.
+- [x] All four Colab links open the intended notebook from the public repository.
 - [x] The prepared-data path is visually primary and never described as inferior.
 - [x] The site, deck, notebooks, and instructor runbook show the same schedule.
 
