@@ -23,6 +23,11 @@ for participants applying the method to a selected watershed. Every notebook
 uses numbered operations with equations, intermediate results, interpretation,
 and notes on how each relevant `cnkit` function performs its calculation.
 
+The 48-slide lecture deck is designed to precede and frame each notebook block:
+slides establish the scientific question, theory, data pathway, and analyst
+decisions; notebooks provide the executable derivation and method audit. Each
+lab returns to a slide-based report-out before the next module begins.
+
 ## Workshop sequence
 
 | Module | Notebook | Primary result |
@@ -65,6 +70,7 @@ that directory through the repository's Pages environment.
 ## Verification
 
 ```bash
+python -m pip install -r requirements-dev.txt
 npm test
 python scripts/validate_notebooks.py
 ```

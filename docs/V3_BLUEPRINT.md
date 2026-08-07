@@ -12,6 +12,24 @@ three labs, one readiness check, and one participant portal. The schedule on
 the site, in the slides, in the notebooks, and in the instructor runbook is the
 same schedule.
 
+## Lecture–notebook integration
+
+The master deck and notebooks serve different academic functions.
+
+- The deck introduces the analytical problem, governing equations, evidence
+  types, spatial transformations, methodological choices, and reporting
+  implications.
+- The notebooks provide the complete executable derivation, numbered workflow,
+  intermediate outputs, assertions, library explanations, figures, and method
+  audit.
+- Each lecture block ends with a laboratory launch slide, and each laboratory
+  ends with a report-out question that requires interpretation of the result.
+
+This structure supports live instruction without turning slides into code
+documentation or requiring participants to infer the scientific problem from
+notebook cells alone. The notebooks remain complete enough for independent
+review after the workshop.
+
 ## Two synchronized data pathways
 
 - The **reference-data pathway** uses verified outputs for several contrasting
@@ -78,12 +96,13 @@ Instructor-only until release:
 ## Design principles
 
 1. The method comes before the platform.
-2. Reference datasets and Earth Engine outputs use the same analytical schema.
-3. Every lab produces one reportable artifact.
-4. Prepared and live data share the same schema.
-5. Every number shown in slides is pinned by a test or source record.
-6. The site is the participant's front door; Drive is not part of the normal path.
-7. Earth Engine resources remain available for continued watershed applications
+2. Lecture frames the problem; the notebook exposes the calculation.
+3. Reference datasets and Earth Engine outputs use the same analytical schema.
+4. Every lab produces one reportable artifact.
+5. Prepared and live data share the same schema.
+6. Every number shown in slides is pinned by a test or source record.
+7. The site is the participant's front door; Drive is not part of the normal path.
+8. Earth Engine resources remain available for continued watershed applications
    after the scheduled session.
 
 ## V3 live anchors
