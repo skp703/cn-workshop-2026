@@ -1,0 +1,40 @@
+{
+  "status": "recorded live Earth Engine result",
+  "executed_local_date": "2026-08-06",
+  "source_notebook": "evidence/gee-live/D2_executed_2026-08-06.ipynb",
+  "project_id_redacted": true,
+  "watershed": {
+    "name": "Difficult Run near Great Falls, VA",
+    "gage": "01646000",
+    "area_sqmi": 57.82222889501814,
+    "delineation": "USGS NLDI split catchment",
+    "vertices": 2129
+  },
+  "land_cover": {
+    "asset": "projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER",
+    "available_years_at_run_time": [1985, 2025],
+    "mean_impervious_pct": {
+      "2001": 16.44,
+      "2019": 18.24
+    }
+  },
+  "soils": {
+    "asset": "projects/sat-io/open-datasets/gNATSGO/raster/mukey",
+    "letters_resolved_by": "USDA Soil Data Access",
+    "analysis_scale_m": 30,
+    "percent_area_no_hsg": 21.265543
+  },
+  "curve_number_2019_fair": {
+    "marginals_crossed_independently": 77.6638,
+    "observed_joint_distribution": 75.779032,
+    "independence_assumption_cn": 1.8848,
+    "cn_weighted_s": 73.87636,
+    "joint_pairs": 80
+  },
+  "experimental_soils_comparison": {
+    "source": "HiHydroSoil v2.0",
+    "cn": 83.956409,
+    "difference_from_sda_cn": 8.1774,
+    "warning": "Modelled global product; not a replacement for SSURGO in CONUS design work."
+  }
+}

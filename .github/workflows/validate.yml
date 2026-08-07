@@ -1,0 +1,38 @@
+name: Validate workshop materials
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run pages:build
+
+  notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install notebook environment
+        run: pip install -r requirements.txt nbclient nbformat ipykernel
+      - name: Rebuild participant notebooks
+        run: python scripts/build_notebooks.py
+      - name: Execute reference-data pathway
+        run: python scripts/validate_notebooks.py
