@@ -273,6 +273,7 @@ def build_readiness():
         actual = [round(x, 4) for x in composite_runoff(1.0, [98, 55], [0.6, 0.4])]
         print("weighting check:", actual)
         assert actual == expected
+        CORE_CALCULATION_READY = actual == expected
 
         required = [
             DATA_DIR / "events_01646000.csv",
@@ -284,6 +285,7 @@ def build_readiness():
         missing = [str(path) for path in required if not path.exists()]
         if missing:
             raise FileNotFoundError("Missing workshop files:\n" + "\n".join(missing))
+        REFERENCE_DATA_READY = not missing
         print("reference-data pathway: ready")
         '''),
         md(r'''
@@ -296,6 +298,7 @@ def build_readiness():
         '''),
         code(r'''
         TEST_EARTH_ENGINE = False
+        EARTH_ENGINE_STATUS = "not checked"
 
         if TEST_EARTH_ENGINE:
             import os
@@ -307,6 +310,7 @@ def build_readiness():
             ee.Initialize(project=project)
             answer = ee.Number(21).multiply(2).getInfo()
             assert answer == 42
+            EARTH_ENGINE_STATUS = "verified"
             print("Earth Engine check:", answer)
             print("live path: ready")
         else:
@@ -316,9 +320,108 @@ def build_readiness():
         md(r'''
         ## Step 5 — Select a watershed identifier
 
-        The live path accepts either a USGS gage number or outlet latitude and
-        longitude for a CONUS watershed. Difficult Run and Accotink Creek are
-        also available as fully documented reference analyses.
+        Choose the identifier that will be used in the spatial notebooks. The
+        reference selection uses a prepared watershed record. The other
+        selections store either a USGS gage number or an outlet coordinate for
+        the live application.
+
+        Edit only the configuration lines at the beginning of the next cell:
+
+        - `WATERSHED_INPUT="reference"` with `REFERENCE_WATERSHED` set to
+          `"difficult_run"` or `"accotink_creek"`;
+        - `WATERSHED_INPUT="gage"` with an eight-digit USGS gage number; or
+        - `WATERSHED_INPUT="outlet"` with latitude and longitude in decimal
+          degrees.
+
+        The cell validates the format and prints a compact configuration record.
+        It does not delineate the watershed; that operation is shown and
+        verified separately in Lab 2.
+        '''),
+        code(r'''
+        import pandas as pd
+        from IPython.display import display
+
+        # Participant configuration
+        WATERSHED_INPUT = "reference"       # "reference", "gage", or "outlet"
+        REFERENCE_WATERSHED = "difficult_run"
+        SELECTED_GAGE = "01646000"
+        OUTLET_LAT = 38.97594
+        OUTLET_LON = -77.24581
+
+        sites = pd.read_csv(DATA_DIR / "sites.csv", dtype={"gage_number": str})
+        display(
+            sites[
+                [
+                    "watershed", "name", "gage_number", "drainage_area_sqmi",
+                    "sample_lat", "sample_lon", "physiography",
+                ]
+            ]
+        )
+
+        if WATERSHED_INPUT == "reference":
+            match = sites.loc[sites.watershed == REFERENCE_WATERSHED]
+            if len(match) != 1:
+                raise ValueError(
+                    "REFERENCE_WATERSHED must be 'difficult_run' or 'accotink_creek'"
+                )
+            selected = match.iloc[0]
+            WATERSHED_CONFIG = {
+                "input": "reference",
+                "watershed": selected.watershed,
+                "name": selected["name"],
+                "gage": selected.gage_number,
+                "latitude": float(selected.sample_lat),
+                "longitude": float(selected.sample_lon),
+            }
+        elif WATERSHED_INPUT == "gage":
+            gage = str(SELECTED_GAGE).strip()
+            if not (gage.isdigit() and len(gage) == 8):
+                raise ValueError("SELECTED_GAGE must contain eight digits")
+            WATERSHED_CONFIG = {"input": "gage", "gage": gage}
+        elif WATERSHED_INPUT == "outlet":
+            latitude = float(OUTLET_LAT)
+            longitude = float(OUTLET_LON)
+            if not (24.0 <= latitude <= 50.0 and -125.0 <= longitude <= -66.0):
+                raise ValueError("Outlet coordinates must fall within CONUS bounds")
+            WATERSHED_CONFIG = {
+                "input": "outlet",
+                "latitude": latitude,
+                "longitude": longitude,
+            }
+        else:
+            raise ValueError(
+                "WATERSHED_INPUT must be 'reference', 'gage', or 'outlet'"
+            )
+
+        WATERSHED_SELECTION_READY = True
+        print("Selected watershed configuration")
+        print(pd.Series(WATERSHED_CONFIG).to_string())
+        '''),
+        md(r'''
+        ## Step 6 — Review the readiness record
+
+        The final cell distinguishes the common computational requirements from
+        the Earth Engine project check. A verified core calculation, reference
+        data bundle, and watershed selection support the full reference-data
+        analysis. The Earth Engine status records whether the selected project
+        was checked during this session.
+        '''),
+        code(r'''
+        readiness = pd.DataFrame(
+            [
+                ["core calculation", "verified" if CORE_CALCULATION_READY else "review"],
+                ["reference data", "verified" if REFERENCE_DATA_READY else "review"],
+                ["watershed selection", "verified" if WATERSHED_SELECTION_READY else "review"],
+                ["Earth Engine project", EARTH_ENGINE_STATUS],
+            ],
+            columns=["component", "status"],
+        )
+        display(readiness)
+
+        assert CORE_CALCULATION_READY
+        assert REFERENCE_DATA_READY
+        assert WATERSHED_SELECTION_READY
+        print("Readiness check complete. Continue to Lab 1.")
         '''),
     ]
     return notebook("00 Readiness Check", "pre-work", cells)

@@ -24,6 +24,7 @@ CONTENT_REQUIREMENTS = {
         "## Step 3 — Verify the core calculation and data files",
         "## Step 4 — Verify an Earth Engine project",
         "## Step 5 — Select a watershed identifier",
+        "## Step 6 — Review the readiness record",
     ],
     "01_Understand_the_Curve_Number.ipynb": [
         "## Step 1 — Define the event water-balance model",
@@ -68,6 +69,15 @@ CONTENT_REQUIREMENTS = {
     ],
 }
 
+CODE_REQUIREMENTS = {
+    "00_Readiness_Check.ipynb": [
+        'WATERSHED_INPUT = "reference"',
+        "WATERSHED_CONFIG = {",
+        "WATERSHED_SELECTION_READY = True",
+        'print("Readiness check complete. Continue to Lab 1.")',
+    ],
+}
+
 
 def validate(path: Path) -> None:
     notebook = nbformat.read(path, as_version=4)
@@ -83,6 +93,13 @@ def validate(path: Path) -> None:
     for required_text in CONTENT_REQUIREMENTS.get(path.name, []):
         if required_text not in markdown:
             raise ValueError(f"missing {required_text!r} in {path.name}")
+
+    source_code = "\n".join(
+        cell.source for cell in notebook.cells if cell.cell_type == "code"
+    )
+    for required_text in CODE_REQUIREMENTS.get(path.name, []):
+        if required_text not in source_code:
+            raise ValueError(f"missing code {required_text!r} in {path.name}")
 
     client = NotebookClient(
         notebook,
