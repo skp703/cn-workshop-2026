@@ -19,9 +19,9 @@ selected watershed through Google Earth Engine.
 
 The readiness notebook runs in Google Colab and verifies `cnkit`, the workshop
 data, and the core calculations. It also includes an Earth Engine project check
-for participants applying the method to a selected watershed. The laboratory
-notebooks combine equations, numbered analytical steps, intermediate tables,
-and notes on how each `cnkit` layer performs its calculation.
+for participants applying the method to a selected watershed. Every notebook
+uses numbered operations with equations, intermediate results, interpretation,
+and notes on how each relevant `cnkit` function performs its calculation.
 
 ## Workshop sequence
 

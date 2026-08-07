@@ -221,7 +221,7 @@ def build_readiness():
         Earth Engine check, success also prints `42`.
         '''),
         md(r'''
-        ## What the setup cell does
+        ## Step 1 — Establish the reproducible environment
 
         The setup cell performs infrastructure work only. It does not calculate
         a curve number and it does not authenticate Earth Engine.
@@ -239,7 +239,7 @@ def build_readiness():
         '''),
         code(SETUP),
         md(r'''
-        ## How the library is organized
+        ## Step 2 — Identify the library layers
 
         | Layer | Responsibility |
         |---|---|
@@ -254,10 +254,17 @@ def build_readiness():
         assumptions visible rather than embedding them in a single function.
         '''),
         md(r'''
-        ## Core environment
+        ## Step 3 — Verify the core calculation and data files
 
-        This verifies the equation, the weighting calculation, and the files
-        needed by the prepared-data path.
+        The numerical check calls `composite_runoff` for a known heterogeneous
+        watershed example. Internally, the function validates the curve numbers
+        and area weights, normalizes the weights, evaluates runoff on each
+        subarea, and also evaluates runoff from area-weighted CN and
+        area-weighted retention. The three expected values therefore test the
+        core equation and both aggregation pathways.
+
+        The second check confirms that the event, land-cover, soil, boundary,
+        and recorded Earth Engine products used later are present.
         '''),
         code(r'''
         from cnkit import composite_runoff
@@ -280,7 +287,7 @@ def build_readiness():
         print("reference-data pathway: ready")
         '''),
         md(r'''
-        ## Earth Engine project check
+        ## Step 4 — Verify an Earth Engine project
 
         Set `TEST_EARTH_ENGINE = True` after registering a Cloud project for
         Earth Engine. Leave it at `False` when using the workshop reference data.
@@ -307,7 +314,7 @@ def build_readiness():
             print("Set TEST_EARTH_ENGINE=True to verify an Earth Engine project.")
         '''),
         md(r'''
-        ## Bring one watershed identifier if you can
+        ## Step 5 — Select a watershed identifier
 
         The live path accepts either a USGS gage number or outlet latitude and
         longitude for a CONUS watershed. Difficult Run and Accotink Creek are
@@ -325,19 +332,22 @@ def build_lab1():
         **Twenty minutes.** This lab establishes the theoretical and numerical
         framework used by both spatial-data pathways.
 
-        The guided analysis is organized as a sequence of explicit operations:
+        The guided analysis is organized into eight explicit steps:
 
-        1. translate curve number to potential retention;
-        2. apply the initial-abstraction threshold;
-        3. calculate event runoff;
-        4. compare distributed and lumped compositing;
-        5. treat lambda and curve number as a paired calibration; and
-        6. distinguish a table estimate from a value inferred from observed
-           rainfall–runoff events.
+        1. define the event water-balance model;
+        2. translate curve number to retention and initial abstraction;
+        3. evaluate the piecewise runoff equation;
+        4. compare distributed and lumped watershed representations;
+        5. examine how the compositing difference varies with storm depth;
+        6. treat lambda and curve number as a paired calibration;
+        7. invert observed rainfall and runoff to event curve numbers; and
+        8. fit and interpret an asymptotic curve number.
 
-        The explanatory cells are intended to remain useful after the workshop.
-        During the twenty-minute laboratory, complete the numbered **Analysis**
-        cells and use the remaining material as a technical reference.
+        Each step states the theoretical purpose, shows the intermediate
+        quantities, explains the corresponding `cnkit` operation, and ends with
+        the interpretation expected from the participant. During the
+        twenty-minute laboratory, prioritize the code cells and retain the
+        surrounding material as a technical reference.
         '''),
         code(SETUP),
         code(r'''
@@ -355,7 +365,7 @@ def build_lab1():
         )
         '''),
         md(r'''
-        ## 1. The event water-balance model
+        ## Step 1 — Define the event water-balance model
 
         The curve-number method is an event-scale, lumped rainfall–runoff
         relation. For rainfall depth $P$, direct-runoff depth $Q$, potential
@@ -382,11 +392,22 @@ def build_lab1():
         begins.
         '''),
         md(r'''
-        ### Analysis 1A — Translate CN into retention and threshold
+        ## Step 2 — Translate CN into retention and initial abstraction
 
-        `S_from_CN` implements only the first equation. The initial-abstraction
-        threshold remains explicit in the notebook so that the role of lambda
-        can be inspected directly.
+        **Why this step is needed.** CN is used by the runoff equation only
+        after it has been transformed to retention. Displaying retention and
+        the abstraction threshold makes the physical consequence of a CN
+        choice visible before runoff is calculated.
+
+        **How the library performs it.** `S_from_CN` converts its input to a
+        numeric array, checks that every curve number is in the interval
+        $0<CN\leq100$, and applies $1000/CN-10$ element by element. It does
+        not assign lambda, so the notebook calculates $I_a=\lambda S$
+        explicitly.
+
+        **What to inspect.** Compare the change in retention with the change in
+        CN. The transformation is nonlinear: a ten-unit CN change does not
+        represent a constant change in storage across the CN range.
         '''),
         code(r'''
         curve_numbers = np.array([55, 70, 85, 98], dtype=float)
@@ -401,18 +422,24 @@ def build_lab1():
         theory_table.round(3)
         '''),
         md(r'''
-        The threshold is mathematically consequential. At CN 70 and
+        **Interpretation.** The threshold is mathematically consequential. At CN 70 and
         $\lambda=0.20$, $I_a$ is approximately 0.86 inches; an event below
         that depth produces zero direct runoff in the model. This is a model
         statement, not a claim that no water moves within the watershed.
-
-        `cnkit.runoff` applies the piecewise equation, validates CN and lambda,
-        broadcasts scalar or array inputs, and returns zero below the threshold.
-        It does not select CN, lambda, rainfall, or the spatial unit of analysis.
-        Those remain analyst decisions.
         '''),
         md(r'''
-        ### Analysis 1B — Verify the implementation against the equation
+        ## Step 3 — Evaluate and verify the runoff equation
+
+        **Why this step is needed.** Reproducing a library result from the
+        published equation confirms the units, threshold convention, and
+        numerical interpretation before the method is applied spatially.
+
+        **How the library performs it.** `cnkit.runoff` validates rainfall, CN,
+        and lambda; broadcasts compatible scalar or array inputs; calculates
+        $S$ and $I_a$; and uses a piecewise mask to return zero where
+        $P\leq I_a$. For the remaining elements it evaluates the rational
+        runoff equation. The library does not select CN, lambda, rainfall, or
+        the spatial unit of analysis.
         '''),
         code(r'''
         def runoff_written_out(P, cn, lam=0.20):
@@ -436,7 +463,14 @@ def build_lab1():
         verification.round(6)
         '''),
         md(r'''
-        ## 2. Nonlinearity and the compositing question
+        **Interpretation.** The assertion checks every storm depth numerically.
+        Values below the threshold should be exactly zero, and the remaining
+        values should agree to floating-point precision. This establishes that
+        later differences arise from parameter or spatial choices rather than a
+        second equation.
+        '''),
+        md(r'''
+        ## Step 4 — Compare distributed and lumped watershed representations
 
         The runoff equation is nonlinear in CN because CN is first transformed
         to $S$, enters both the threshold and denominator, and appears inside
@@ -451,9 +485,6 @@ def build_lab1():
         computes runoff for each hydrologically distinct subarea and then
         aggregates runoff volume. Both are reproducible calculations, but they
         represent different spatial models.
-        '''),
-        md(r'''
-        ### Analysis 2A — Resolve the weighting calculation by subarea
 
         Sixty percent connected impervious cover at CN 98 is combined with
         forty percent woods at CN 55 under a one-inch storm. `composite_runoff`
@@ -463,6 +494,14 @@ def build_lab1():
         2. CN area weighted first, followed by one runoff calculation; and
         3. retention $S$ area weighted first, converted back to CN, followed
            by one runoff calculation.
+
+        **How the library performs it.** The function validates that CN and
+        area arrays are finite, positive, and equal in length; normalizes area
+        to weights; calls `runoff` on each subarea; and calculates the weighted
+        sum of runoff. It then calls `composite_cn` and
+        `composite_cn_via_S` to produce the two lumped comparisons. The return
+        order is distributed runoff, runoff from weighted CN, and runoff from
+        weighted retention.
         '''),
         code(r'''
         P_weighting = 1.0
@@ -501,14 +540,24 @@ def build_lab1():
         print("distributed / weighted-CN ratio: %.1f" % (q_distributed / q_weighted_cn))
         '''),
         md(r'''
-        The wooded subarea remains below its initial-abstraction threshold while
-        the impervious subarea is already producing runoff. A lumped parameter
-        removes that threshold contrast before the nonlinear equation is
-        evaluated. This explains why the difference is largest for smaller
-        storms and heterogeneous watersheds.
+        **Interpretation.** The wooded subarea remains below its
+        initial-abstraction threshold while the impervious subarea is already
+        producing runoff. A lumped parameter removes that threshold contrast
+        before the nonlinear equation is evaluated. This explains why the
+        difference is largest for smaller storms and heterogeneous watersheds.
         '''),
         md(r'''
-        ### Analysis 2B — Examine how the difference changes with storm depth
+        ## Step 5 — Examine how compositing depends on storm depth
+
+        **Why this step is needed.** A single design storm shows one point on a
+        nonlinear response. Repeating the same three spatial representations
+        across rainfall depths reveals whether their difference is structural
+        or specific to the selected storm.
+
+        **How the library performs it.** The notebook calls
+        `composite_runoff` once per rainfall depth while keeping CN values,
+        areas, and lambda fixed. Only $P$ changes. Each plotted line therefore
+        represents one compositing convention under otherwise identical input.
         '''),
         code(r'''
         storms = np.linspace(0.25, 6.0, 48)
@@ -526,7 +575,14 @@ def build_lab1():
         plt.show()
         '''),
         md(r'''
-        ## 3. Lambda and CN form a paired calibration
+        **Interpretation.** Near the abstraction thresholds, some subareas
+        produce runoff while others do not, so early parameter aggregation has
+        its greatest effect. With larger storms, every subarea contributes and
+        the relative separation generally decreases. Record both storm depth
+        and spatial convention when reporting the comparison.
+        '''),
+        md(r'''
+        ## Step 6 — Treat lambda and CN as a paired calibration
 
         Lambda is not an independent switch applied after CN has been selected.
         Event-derived and table-derived curve numbers are conditional on the
@@ -538,14 +594,17 @@ def build_lab1():
         conversion. The converted CN is numerically lower because the smaller
         initial-abstraction ratio permits runoff to begin earlier. Similar
         runoff response—not equal CN—is the comparison to make.
-        '''),
-        md(r'''
-        ### Analysis 3 — Compare three documented parameter estimates
 
         Difficult Run has a 2019 table composite near 75.5 and a fitted
         asymptotic value of 69.7. The lambda conversion below is a third number:
         it describes the same response convention under lambda 0.05 rather than
         0.20.
+
+        **How the library performs it.** `cn05_from_cn20` applies the published
+        empirical conversion to each validated CN value. This is a parameter
+        conversion, not a second runoff calculation. The notebook then calls
+        `runoff` with each CN–lambda pair at the same storm depth so that the
+        resulting response can be compared on a common basis.
         '''),
         code(r'''
         P = 3.0
@@ -564,19 +623,48 @@ def build_lab1():
         comparison.round(4)
         '''),
         md(r'''
-        The three rows have different evidentiary bases: a spatial lookup, a
-        rainfall–runoff fit, and a conversion between equation conventions.
-        They should be labelled accordingly rather than described as competing
-        measurements of one fixed property.
+        **Interpretation.** The three rows have different evidentiary bases: a
+        spatial lookup, a rainfall–runoff fit, and a conversion between
+        equation conventions. They should be labelled accordingly rather than
+        described as competing measurements of one fixed property.
         '''),
         md(r'''
-        ## 4. How a curve number is inferred from measured events
+        ## Step 7 — Invert observed rainfall and runoff to event curve numbers
 
         For an observed event pair \((P,Q)\), `CN_from_PQ` algebraically inverts
         the same runoff equation for a specified lambda. Each valid event
         produces an event-derived CN. These values vary with storm depth,
         antecedent state, measurement error, and model adequacy; the variation
         is information rather than a reason to average immediately.
+
+        **How the library performs it.** `CN_from_PQ` broadcasts rainfall and
+        runoff arrays, identifies physically admissible events, solves the
+        quadratic relation for retention, and transforms retention to CN. An
+        event receives `NaN` when the inputs do not support a physical inverse,
+        such as non-positive runoff or runoff exceeding rainfall. Lambda is an
+        explicit argument because it changes the inverse solution.
+        '''),
+        code(r'''
+        events = pd.read_csv(DATA_DIR / "events_01646000.csv")
+        events["event_CN"] = CN_from_PQ(
+            events.P_in.values, events.Q_in.values, lam=0.20
+        )
+        events["valid_inverse"] = np.isfinite(events.event_CN)
+
+        print("event records:       ", len(events))
+        print("valid inverse events:", int(events.valid_inverse.sum()))
+        events[
+            ["P_in", "Q_in", "runoff_ratio", "event_CN", "valid_inverse"]
+        ].head(12).round(3)
+        '''),
+        md(r'''
+        **Interpretation.** Event CN is derived from measured quantities under
+        a specified model convention. The event table should therefore retain
+        rainfall, runoff, runoff ratio, lambda, and validity status beside the
+        transformed value.
+        '''),
+        md(r'''
+        ## Step 8 — Fit and interpret an asymptotic curve number
 
         `fit_asymptotic` then fits the Hawkins standard relation
 
@@ -589,18 +677,24 @@ def build_lab1():
         how much of the event-CN variation is explained by this specific
         functional form. The fit does not establish that the watershed has a
         unique physical CN.
+
+        **How the library performs it.** The function calls `CN_from_PQ`,
+        retains finite event values, checks that the requested minimum event
+        count is available, and uses bounded nonlinear least squares to
+        estimate $CN_{\infty}$ and $k$. It returns a structured result with
+        the model name, coefficients, event count, RMSE, and $R^2$. Its
+        `predict` method evaluates the selected fitted model at new rainfall
+        depths.
         '''),
         code(r'''
-        events = pd.read_csv(DATA_DIR / "events_01646000.csv")
-        event_cn = CN_from_PQ(events.P_in.values, events.Q_in.values, lam=0.20)
         fit = fit_asymptotic(events.P_in.values, events.Q_in.values, lam=0.20)
 
-        valid = np.isfinite(event_cn)
+        valid = events.valid_inverse.values
         p_line = np.linspace(events.P_in.min(), events.P_in.max(), 200)
-        fitted_line = fit.cn_inf + (100.0 - fit.cn_inf) * np.exp(-fit.k * p_line)
+        fitted_line = fit.predict(p_line)
 
         fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.scatter(events.P_in.values[valid], event_cn[valid], s=12, alpha=0.25,
+        ax.scatter(events.P_in.values[valid], events.event_CN.values[valid], s=12, alpha=0.25,
                    label="event-derived CN")
         ax.plot(p_line, fitted_line, color="#b24d35", lw=2.5,
                 label="Hawkins standard fit")
@@ -612,19 +706,27 @@ def build_lab1():
         ax.legend()
         plt.show()
 
-        print("events:       ", len(events))
+        print("event records:", len(events))
+        print("events fitted:", fit.n_events)
         print("CN infinity:   %.3f" % fit.cn_inf)
         print("decay k:       %.3f" % fit.k)
         print("R squared:     %.3f" % fit.r2)
         '''),
         md(r'''
-        ## 5. What `cnkit` did—and did not do
+        **Interpretation.** Compare the event cloud, fitted curve, table value,
+        fitted event count, and diagnostics together. A numerical asymptote is
+        meaningful only to the extent that the selected response form is
+        supported over the observed rainfall range.
+        '''),
+        md(r'''
+        ## Method audit — Library operation and analyst decision
 
         | Call | Library operation | Analyst responsibility |
         |---|---|---|
         | `S_from_CN` | Applies the CN-to-retention transformation | Establish the basis and scale of CN |
         | `runoff` | Applies the piecewise event equation | Select $P$, CN, lambda, and spatial representation |
         | `composite_runoff` | Returns distributed, weighted-CN, and weighted-S calculations | Choose and justify the compositing convention |
+        | `cn05_from_cn20` | Applies the published empirical parameter conversion | Keep the converted CN paired with lambda 0.05 |
         | `CN_from_PQ` | Inverts the event equation | Verify rainfall, direct-runoff separation, and event selection |
         | `fit_asymptotic` | Fits a named CN-versus-rainfall model | Evaluate fit adequacy and interpretability |
 
@@ -675,6 +777,10 @@ def build_lab2():
         verified tables for Difficult Run or Accotink Creek. The Earth Engine
         application replaces the marginal tables with pixelwise spatial
         measurements for a selected watershed.
+
+        Each numbered step states why the operation is needed, describes how
+        the relevant library layer performs it, exposes the intermediate table
+        or geometry, and identifies the result that should be interpreted.
         '''),
         code(SETUP),
         code(r'''
@@ -1198,6 +1304,21 @@ def build_lab2():
         available for inspection.
         '''),
         md(r'''
+        ## Method audit — Library operation and analyst decision
+
+        | Step | Call or object | Operation performed by `cnkit` | Decision or check retained by the analyst |
+        |---|---|---|---|
+        | 1–3 | `watershed_from_point`, `watershed_from_gage`, `Watershed` | Resolve the outlet, obtain upstream geometry, calculate area, and retain method provenance | Select the outlet meaning and verify boundary, area, and warnings |
+        | 4 | `Basin` | Convert the checked boundary to an Earth Engine geometry and retain scale, project, pixel, drainage, and cache settings | Select project, scale, and drainage convention |
+        | 5 | `Basin.landcover`, `Basin.impervious` | Reduce categorical Annual NLCD and fractional imperviousness separately | Select year and interpret class area separately from impervious fraction |
+        | 6 | `Basin.soil_groups` | Summarize map-unit keys and resolve the occurring keys through Soil Data Access | Select soil source and account for dual or unmapped groups |
+        | 7 | `Basin.joint_landcover_soils` | Pack two raster codes, execute one histogram, and decode observed pairs | Decide whether joint spatial evidence or a marginal approximation supports the analysis |
+        | 8 | `cn_lookup` | Index the crosswalk by NLCD, HSG, and hydrologic condition | Establish the crosswalk and condition basis |
+        | 9 | `composite_from_areas` | Calculate weighted-CN and weighted-retention composites and unmapped fractions | Select and report the aggregation convention |
+        | 10 | marginal cross and joint comparison | Recalculate from controlled marginals to isolate the independence effect | Interpret the difference at the stated boundary, year, source, and scale |
+        | 11 | `runoff` | Apply the event equation to the selected storm, CN, and lambda | Select the rainfall basis and retain complete provenance |
+        '''),
+        md(r'''
         ## Report-out
 
         Bring back the following record:
@@ -1243,6 +1364,10 @@ def build_lab3():
         The recorded Difficult Run products support the complete analysis. An
         optional Earth Engine section repeats the spatial trajectory for a
         selected watershed.
+
+        Each numbered step states the scientific question, describes the
+        library operation, shows its intermediate result, and identifies the
+        interpretation that belongs in a methods or results statement.
         '''),
         code(SETUP),
         code(r'''
@@ -1274,6 +1399,11 @@ def build_lab3():
         '''),
         md(r'''
         ## Part 1 — A spatial curve-number trajectory
+
+        This part holds boundary, soil, lookup, condition, scale, and
+        compositing convention constant while land-cover year changes.
+        '''),
+        md(r'''
 
         ### Step 1 — Define what changes and what remains fixed
 
@@ -1394,7 +1524,7 @@ def build_lab3():
         trajectory remains the equation in Step 1.
         '''),
         md(r'''
-        ### Optional application — delineate a selected watershed
+        ### Step 4A — Delineate a selected watershed
 
         The application is separated into boundary construction and Earth
         Engine analysis so each spatial operation can be inspected. Change the
@@ -1420,7 +1550,7 @@ def build_lab3():
             print("Recorded Difficult Run trajectory selected.")
         '''),
         md(r'''
-        ### Optional application — calculate the annual trajectory
+        ### Step 4B — Calculate the annual trajectory
 
         Authentication and the annual reductions occur only in this cell. The
         preceding boundary can therefore be checked before any raster summary
@@ -1458,6 +1588,11 @@ def build_lab3():
         '''),
         md(r'''
         ## Part 2 — Curve numbers inferred from observed events
+
+        This part changes the evidence base from spatial lookup tables to
+        rainfall and direct-runoff observations at streamgages.
+        '''),
+        md(r'''
 
         ### Step 5 — Invert the rainfall–runoff equation
 
@@ -1589,6 +1724,12 @@ def build_lab3():
         md(r'''
         ## Part 3 — Antecedent-condition conventions
 
+        This part compares two operational descriptions of the watershed state
+        before an event: five-day rainfall history and seasonally standardized
+        root-zone wetness.
+        '''),
+        md(r'''
+
         ### Step 8 — Distinguish rainfall history from observed wetness
 
         The historical antecedent moisture condition (AMC) convention assigns
@@ -1710,7 +1851,7 @@ def build_lab3():
         display(antecedent_summary.round(3))
         '''),
         md(r'''
-        ## What each library layer contributes
+        ## Method audit — Library operation and analyst decision
 
         | Layer | Operation performed by `cnkit` | Scientific choice retained by the analyst |
         |---|---|---|

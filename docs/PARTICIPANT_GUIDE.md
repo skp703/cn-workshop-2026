@@ -14,9 +14,11 @@ The workshop supports two complementary pathways:
   a selected watershed.
 
 Both pathways use the same analytical framework and discussion questions.
-Each notebook places the relevant equations and assumptions beside numbered
-analysis steps, and identifies which operations are performed by `cnkit` and
-which scientific choices remain with the analyst.
+Every notebook—including readiness, theory, spatial estimation, and
+evaluation—places the relevant equations and assumptions beside numbered
+steps. Each analytical operation identifies what `cnkit` performs, which
+intermediate result should be inspected, and which scientific choices remain
+with the analyst.
 
 ## Before the workshop
 
