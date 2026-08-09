@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://skp703.github.io/cn-workshop-2026/"),
   openGraph: {
     title: "Modern Curve Number Hydrology",
-    description: "From lookup tables to a watershed you can measure.",
+    description: "Curve Number theory, Earth Engine, and participant-directed hydrologic investigations.",
     type: "website",
     images: [
       {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Modern Curve Number Hydrology",
-    description: "From lookup tables to a watershed you can measure.",
+    description: "Curve Number theory, Earth Engine, and participant-directed hydrologic investigations.",
     images: ["/og.png"],
   },
 };
@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-path="core">
+    <html lang="en">
       <head>
         {/* The same stylesheet is used by the app preview and static Pages export. */}
         {/* eslint-disable-next-line @next/next/no-css-tags */}

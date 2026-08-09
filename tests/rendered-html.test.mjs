@@ -21,27 +21,33 @@ test("renders the participant-first workshop portal", async () => {
 
   const html = await response.text();
   assert.match(html, /Modern Curve Number Hydrology/);
-  assert.match(html, /Reference data pathway/);
-  assert.match(html, /Earth Engine application/);
-  assert.match(html, /Theory, spatial estimation, and interpretation/);
+  assert.match(html, /Curve Number theory/);
+  assert.match(html, /Getting started with Google Earth Engine/);
+  assert.match(html, /Participant-directed notebook investigations/);
+  assert.match(html, /Select one investigation and develop it/);
   assert.match(html, /Learning objectives/);
   assert.doesNotMatch(html, /never required|three-minute rule|Two paths\. One learning journey/i);
   assert.match(html, /0:00/);
   assert.match(html, /4:00/);
+  assert.match(html, /Open workshop feedback form/);
+  assert.match(html, /01_CN_Equation_and_Runoff_Response\.ipynb/);
+  assert.match(html, /04_Event_CN_and_Antecedent_State\.ipynb/);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|react-loading-skeleton/);
 });
 
 test("exports a static GitHub Pages version with workshop assets", async () => {
-  const [html, css, js] = await Promise.all([
+  const [html, css, js, gee] = await Promise.all([
     readFile(new URL("../dist-pages/index.html", import.meta.url), "utf8"),
     readFile(new URL("../dist-pages/workshop.css", import.meta.url), "utf8"),
     readFile(new URL("../dist-pages/workshop.js", import.meta.url), "utf8"),
+    readFile(new URL("../dist-pages/gee/01_watershed_land_surface.js", import.meta.url), "utf8"),
   ]);
 
   assert.match(html, /workshop\.css/);
   assert.match(html, /00_Readiness_Check\.ipynb/);
   assert.match(css, /--navy:\s*#12244b/);
-  assert.match(js, /cn-workshop-path/);
+  assert.match(js, /classList\.add\("js"\)/);
+  assert.match(gee, /USGS\/WBD\/2017\/HUC12/);
   await access(new URL("../dist-pages/.nojekyll", import.meta.url));
   await access(new URL("../dist-pages/og.png", import.meta.url));
 });

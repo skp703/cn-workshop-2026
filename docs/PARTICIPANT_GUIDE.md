@@ -2,57 +2,95 @@
 
 ## Modern Curve Number Hydrology
 
-This four-hour workshop moves from the published curve-number method to a
-measured, spatially resolved result for a real watershed.
+This four-hour workshop combines a common theoretical foundation, a guided
+Google Earth Engine exercise, and a participant-directed hydrologic
+investigation.
 
-The workshop supports two complementary pathways:
+The workshop has three academic components:
 
-- **Reference data pathway:** use verified records for Difficult Run or
-  Accotink Creek and complete every calculation in the workshop sequence.
-- **Earth Engine application:** bring a USGS gage number or outlet coordinates
-  and use a registered Earth Engine project to repeat the spatial analysis for
-  a selected watershed.
-
-Both pathways use the same analytical framework and discussion questions.
-Every notebook—including readiness, theory, spatial estimation, and
-evaluation—places the relevant equations and assumptions beside numbered
-steps. Each analytical operation identifies what `cnkit` performs, which
-intermediate result should be inspected, and which scientific choices remain
-with the analyst.
+1. **Curve Number theory:** governing equations, threshold behavior, parameter
+   conventions, spatial aggregation, and evidence used to estimate CN.
+2. **Getting started with Earth Engine:** a live Code Editor exercise using a
+   watershed-scale boundary and NLCD data.
+3. **Participant investigation:** ninety minutes devoted to one of four
+   notebook questions, including a guided analytical core and optional
+   extensions.
 
 ## Before the workshop
 
-Bring a laptop and charger. Nothing needs to be installed on your computer.
-The notebooks run in Google Colab. A Google account is useful for saving your
-own notebook copy.
+Bring a laptop and charger. The notebooks run in Google Colab, and the guided
+Earth Engine exercise runs in the web Code Editor. A Google account is useful
+for saving Colab copies and working directly in Earth Engine.
 
-Run `00_Readiness_Check.ipynb` once. It verifies Colab, installs the pinned
-`cnkit` release if needed, downloads the versioned data pack, and includes an
-Earth Engine project check.
+Run `00_Readiness_Check.ipynb` once. It verifies `cnkit`, the versioned workshop
+data, and the core calculations. It can also verify a registered Earth Engine
+project.
 
-If you want to apply the workflow through Earth Engine, follow `GEE_SETUP.md`
-before the workshop. The reference-data pathway remains available for
-participants who prefer to configure Earth Engine after the session.
+For direct participation in the Earth Engine exercise, follow `GEE_SETUP.md`
+and open the Code Editor before the workshop. The guided demonstration and the
+versioned notebook datasets remain available to all attendees.
 
-## During the workshop
+## Workshop schedule
 
-Open notebooks from the workshop website. For each lab:
+| Time | Activity |
+|---|---|
+| 0:00–0:10 | Introduction and workshop outcomes |
+| 0:10–0:40 | Curve Number theory |
+| 0:40–1:00 | Getting started with Google Earth Engine |
+| 1:00–1:20 | Break and optional GEE exploration |
+| 1:20–1:30 | Investigation introduction and group formation |
+| 1:30–3:00 | Participant-directed notebook investigations |
+| 3:00–3:15 | Break |
+| 3:15–3:45 | Participant report-outs and discussion |
+| 3:45–4:00 | Synthesis, resources, and feedback |
 
-1. Save a copy in Drive if you want to keep your edits.
-2. Run the setup cell and wait for `setup complete`.
-3. Select the reference-data or Earth Engine pathway.
-4. Record the requested result and its provenance.
-5. Be ready to explain what you would defend to a reviewer.
+## Earth Engine exercise
 
-Earth Engine setup resources remain available after the session for continued
-application to additional watersheds.
+The guided script asks how Earth Engine can describe the land surface inside a
+watershed-scale boundary. It introduces geometries, feature collections, image
+collections, filtering, band selection, clipping, visualization, pixel
+inspection, `pixelArea`, grouped reduction, and deferred execution.
 
-## Deliverables
+During the exploration interval, participants may change the NLCD year, map
+location, visible layers, or catalog dataset. The exercise files are under
+`gee/` in the workshop repository.
 
-By the close you will have:
+## Select one investigation
 
-- a watershed boundary and verification check;
-- a composite curve number with its land-cover and soil sources;
-- a change trajectory and hydrologic-condition band;
-- a statement of unmapped area and important assumptions; and
-- a six-line reporting checklist for future projects.
+### 1. CN equation and runoff response
+
+Examine how rainfall depth, lambda, and spatial aggregation alter runoff.
+
+### 2. Spatial CN for a watershed
+
+Build or audit a watershed boundary, land-cover–soil distribution, composite
+CN, and design-runoff estimate.
+
+### 3. Land-cover change and design runoff
+
+Compare a controlled CN trajectory with hydrologic-condition sensitivity and
+translate both to design runoff.
+
+### 4. Event-derived CN and antecedent state
+
+Infer CN from observed events, fit an asymptotic response, and compare
+rainfall-history and root-zone-wetness conventions.
+
+Each notebook includes a minimum guided result and several extensions. Select
+one investigation as the primary activity; completion of every notebook is not
+an instructional objective.
+
+## Reporting record
+
+Prepare a short report-out containing:
+
+1. analytical question;
+2. watershed or dataset;
+3. data source, year, scale, and equation convention;
+4. assumption or comparison examined;
+5. principal quantitative result;
+6. interpretation and limitation.
+
+## Feedback
+
+Complete the anonymous five-minute [workshop feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeavvSSEWlNcENVxCJZW9g22rztcJpi2Cd6ba6smZ9JX9toSA/viewform). It asks about conceptual clarity, the Earth Engine introduction, the participant-directed investigation period, time allocation, and future topics.

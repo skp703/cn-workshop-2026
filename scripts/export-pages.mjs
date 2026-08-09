@@ -15,7 +15,7 @@ for (const file of ["workshop.css", "workshop.js", "og.png"]) {
   await cp(resolve(root, "public", file), resolve(output, file));
 }
 
-for (const folder of ["notebooks", "docs", "downloads"]) {
+for (const folder of ["notebooks", "docs", "downloads", "gee"]) {
   await cp(resolve(root, folder), resolve(output, folder), { recursive: true });
 }
 

@@ -1,4 +1,4 @@
-"""Build the four participant notebooks for the V3 workshop.
+"""Build the readiness notebook and four participant investigations.
 
 The generated notebooks support verified reference datasets and live Earth
 Engine analysis through a common analytical and reporting framework.
@@ -6,6 +6,7 @@ Engine analysis through a common analytical and reporting framework.
 
 from __future__ import annotations
 
+from copy import deepcopy
 from pathlib import Path
 import hashlib
 import json
@@ -64,6 +65,49 @@ def md(value: str):
 
 def code(value: str):
     return nbf.v4.new_code_cell(clean(value))
+
+
+def gee_data_source_register(title="## Earth Engine data-source register"):
+    """Document every Earth Engine asset used by the workshop workflows."""
+    return md(f'''
+    {title}
+
+    The table below records the exact Earth Engine asset identifiers used in
+    the guided exercise and the optional live notebook pathway. An asset
+    identifier documents the computational input; the agency product remains
+    the scientific data source that should be cited in a report.
+
+    | Workshop use | Publisher and product | Exact Earth Engine asset | Relevant band or object | Native scale | Catalog status |
+    |---|---|---|---|---:|---|
+    | Guided watershed geometry | U.S. Geological Survey, Watershed Boundary Dataset, HUC12 | `USGS/WBD/2017/HUC12` | `FeatureCollection`; field `huc12` | vector | Official Earth Engine catalog |
+    | Guided land cover and imperviousness | U.S. Geological Survey, NLCD 2019 release | `USGS/NLCD_RELEASES/2019_REL/NLCD` | `landcover`; `impervious` | 30 m | Official Earth Engine catalog |
+    | Live annual land-cover distribution and trajectory | U.S. Geological Survey, Annual NLCD Collection 1 | `projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER` | first band of each annual image | 30 m | Earth Engine Community Catalog mirror |
+    | Live mean fractional impervious surface | U.S. Geological Survey, Annual NLCD Collection 1 | `projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/FRACTIONAL_IMPERVIOUS_SURFACE` | first band of each annual image | 30 m | Earth Engine Community Catalog mirror |
+    | Live soil map-unit keys for `SOILS_SOURCE="sda"` | USDA Natural Resources Conservation Service, gNATSGO | `projects/sat-io/open-datasets/gNATSGO/raster/mukey` | first band; integer map-unit key | 30 m | Earth Engine Community Catalog mirror |
+    | Optional global HSG comparison for `SOILS_SOURCE="hihydro"` | FutureWater, HiHydroSoil v2.0 | `projects/sat-io/open-datasets/HiHydroSoilv2_0/Hydrologic_Soil_Group_250m` | first band; modeled HSG class | 250 m | Earth Engine Community Catalog asset |
+
+    **Supporting services that are not Earth Engine assets.** The USGS NLDI
+    [web service](https://api.water.usgs.gov/docs/nldi/) constructs the live watershed
+    boundary before `cnkit` converts it to an Earth Engine geometry. For the
+    `sda` soil pathway, Earth Engine supplies only the gNATSGO map-unit keys;
+    the USDA NRCS Soil Data Access
+    [web service](https://sdmdataaccess.sc.egov.usda.gov/WebServiceHelp.aspx)
+    supplies the dominant-condition hydrologic-soil-group attributes joined to
+    those keys.
+
+    **Source and access documentation.** See the USGS
+    [Annual NLCD product page](https://www.usgs.gov/centers/eros/science/annual-national-land-cover-database),
+    USDA NRCS [gNATSGO documentation](https://www.nrcs.usda.gov/resources/data-and-reports/gridded-national-soil-survey-geographic-database-gnatsgo),
+    the Earth Engine catalog entries for
+    [WBD HUC12](https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC12)
+    and [NLCD 2019](https://developers.google.com/earth-engine/datasets/catalog/USGS_NLCD_RELEASES_2019_REL_NLCD),
+    and the [Earth Engine Community Catalog Annual NLCD record](https://gee-community-catalog.org/projects/annual_nlcd/).
+
+    The `projects/sat-io` paths are community-hosted access copies. Record the
+    exact asset ID and retrieval date for reproducibility, but cite the original
+    agency product as the data source. Availability of annual images is checked
+    at runtime rather than assumed from a fixed list of years.
+    ''')
 
 
 def notebook(title: str, role: str, cells: list):
@@ -253,6 +297,7 @@ def build_readiness():
         the corresponding convenience workflow. This makes the scientific
         assumptions visible rather than embedding them in a single function.
         '''),
+        gee_data_source_register("## Step 2A — Record the Earth Engine data sources"),
         md(r'''
         ## Step 3 — Verify the core calculation and data files
 
@@ -335,7 +380,7 @@ def build_readiness():
 
         The cell validates the format and prints a compact configuration record.
         It does not delineate the watershed; that operation is shown and
-        verified separately in Lab 2.
+        verified separately in Investigation 2.
         '''),
         code(r'''
         import pandas as pd
@@ -421,7 +466,7 @@ def build_readiness():
         assert CORE_CALCULATION_READY
         assert REFERENCE_DATA_READY
         assert WATERSHED_SELECTION_READY
-        print("Readiness check complete. Continue to Lab 1.")
+        print("Readiness check complete. Continue to the common workshop introduction.")
         '''),
     ]
     return notebook("00 Readiness Check", "pre-work", cells)
@@ -693,7 +738,7 @@ def build_lab1():
         $\lambda=0.20$ should therefore be converted or refitted before it is
         used with $\lambda=0.05$.
 
-        `cn05_from_cn20` implements the Hawkins et al. (2003) empirical
+        `cn05_from_cn20` implements the Woodward et al. (2003) empirical
         conversion. The converted CN is numerically lower because the smaller
         initial-abstraction ratio permits runoff to begin earlier. Similar
         runoff response—not equal CN—is the comparison to make.
@@ -769,7 +814,8 @@ def build_lab1():
         md(r'''
         ## Step 8 — Fit and interpret an asymptotic curve number
 
-        `fit_asymptotic` then fits the Hawkins standard relation
+        `fit_asymptotic` then fits the standard relation described by
+        [Hawkins (1993)](https://doi.org/10.1061/%28ASCE%290733-9437%281993%29119%3A2%28334%29):
 
         $$
         CN(P)=CN_{\infty}+(100-CN_{\infty})e^{-kP}
@@ -848,9 +894,10 @@ def build_lab1():
            $CN_{\infty}$.
 
         **Source anchors:** NEH-630 Chapter 10 equations 10-1 and 10-11;
-        TR-55 Worksheet 2; Woodward et al. (2003), DOI
-        `10.1061/40685(2003)308`; Hawkins et al. (2003), DOI
-        `10.1061/(ASCE)1084-0699(2003)8:6(445)`.
+        TR-55 Worksheet 2; Woodward et al. (2003),
+        [doi:10.1061/40685(2003)308](https://doi.org/10.1061/40685%282003%29308);
+        Hawkins (1993),
+        [doi:10.1061/(ASCE)0733-9437(1993)119:2(334)](https://doi.org/10.1061/%28ASCE%290733-9437%281993%29119%3A2%28334%29).
         '''),
     ]
     return notebook("01 Understand the Curve Number", "lab 1", cells)
@@ -928,6 +975,7 @@ def build_lab2():
         spatial area table is measured; it does not introduce a second
         curve-number equation.
         '''),
+        gee_data_source_register(),
         md(r'''
         ## Step 1 — Identify the watershed and outlet
 
@@ -1390,7 +1438,7 @@ def build_lab2():
         The function also reports the fraction of the original area table for
         which no lookup was possible. It does not calculate distributed runoff;
         that requires applying the runoff equation to each mapped pair before
-        area weighting, as demonstrated in Lab 1.
+        area weighting, as demonstrated in Investigation 1.
         '''),
         code(r'''
         composites = {
@@ -1645,6 +1693,7 @@ def build_lab3():
         land-cover change under those fixed analytical choices. It is not a
         direct measurement of infiltration, storage, or runoff.
         '''),
+        gee_data_source_register("### Earth Engine data sources for this trajectory"),
         md(r'''
         ### Step 2 — Load the recorded Earth Engine trajectory
 
@@ -1728,7 +1777,7 @@ def build_lab3():
         ### Step 4 — Understand how `cn_trajectory` performs the calculation
 
         The convenience workflow organizes the same lower-level operations
-        used in Lab 2:
+        used in Investigation 2:
 
         1. Accept an existing `Watershed`, or delineate one from coordinates.
         2. Create one `Basin` so the boundary and scale remain fixed.
@@ -2145,15 +2194,399 @@ def build_lab3():
     return notebook("03 Change and Uncertainty", "lab 3", cells)
 
 
+def _source(cell):
+    """Return source text for a NotebookNode or fallback dictionary cell."""
+    return cell["source"] if isinstance(cell, dict) else cell.source
+
+
+def _first_cell(cells, prefix):
+    for index, cell in enumerate(cells):
+        if _source(cell).lstrip().startswith(prefix):
+            return index
+    raise ValueError("Notebook cell not found: %s" % prefix)
+
+
+def build_investigation1():
+    """Focus the theory notebook on equation behavior and compositing."""
+    base = build_lab1()
+    source_cells = deepcopy(base["cells"] if isinstance(base, dict) else base.cells)
+    calibration_start = _first_cell(source_cells, "## Step 7")
+    cells = source_cells[:calibration_start]
+    cells[0] = md(r'''
+    # Investigation 1 — CN equation and runoff response
+
+    **Participant-directed investigation.** Complete Steps 1–4 as the guided
+    core, then select at least one extension. This investigation examines how
+    rainfall depth, curve number, initial abstraction, and spatial aggregation
+    govern event runoff.
+
+    **Minimum result:** one figure or table comparing runoff under two stated
+    modeling conventions, accompanied by the rainfall depth, CN basis, lambda,
+    and aggregation method.
+    ''')
+    cells.extend([
+        md(r'''
+        ## Open investigation — Choose a question
+
+        Select one or more extensions and state your comparison before changing
+        the code.
+
+        1. **Storm-depth dependence:** identify the rainfall range over which
+           distributed and composite runoff differ most.
+        2. **Parameter pairing:** compare lambda 0.20 with a consistently
+           converted lambda 0.05 curve number.
+        3. **Watershed heterogeneity:** replace the example subareas with a
+           contrasting CN distribution that retains the same mean CN.
+        4. **Decision sensitivity:** determine whether an alternative
+           convention changes the interpretation, not only the numerical value.
+
+        Retain the original result and the modified result so the effect of the
+        chosen change remains auditable.
+        '''),
+        md(r'''
+        ## Method audit and reporting record
+
+        | Call | Library operation | Analyst responsibility |
+        |---|---|---|
+        | `S_from_CN` | Applies the CN-to-retention transformation | Establish the CN basis and units |
+        | `runoff` | Applies the piecewise event equation | Select rainfall, CN, lambda, and spatial representation |
+        | `composite_runoff` | Returns distributed, weighted-CN, and weighted-retention results | Select and justify an aggregation convention |
+        | `cn05_from_cn20` | Applies the published empirical conversion | Keep the converted CN paired with lambda 0.05 |
+
+        Record: analytical question; inputs and units; convention changed;
+        principal quantitative result; interpretation; and one limitation.
+
+        ## References
+
+        - U.S. Department of Agriculture, Natural Resources Conservation
+          Service. 2004. *National Engineering Handbook, Part 630, Chapter 10:
+          Estimation of Direct Runoff from Storm Rainfall*.
+          [Official PDF](https://directives.nrcs.usda.gov/sites/default/files2/1712930608/7300.pdf).
+        - U.S. Department of Agriculture, Soil Conservation Service. 1986.
+          *Urban Hydrology for Small Watersheds*, Technical Release 55,
+          second edition. Worksheet 2.
+        - Woodward, D. E., R. H. Hawkins, R. Jiang, A. T. Hjelmfelt Jr.,
+          J. A. Van Mullem, and Q. D. Quan. 2003. “Runoff Curve Number Method:
+          Examination of the Initial Abstraction Ratio.” *World Water &
+          Environmental Resources Congress 2003*, 1–10.
+          [doi:10.1061/40685(2003)308](https://doi.org/10.1061/40685%282003%29308).
+        - Hawkins, R. H. 1993. “Asymptotic Determination of Runoff Curve
+          Numbers from Data.” *Journal of Irrigation and Drainage Engineering*
+          119(2):334–345.
+          [doi:10.1061/(ASCE)0733-9437(1993)119:2(334)](https://doi.org/10.1061/%28ASCE%290733-9437%281993%29119%3A2%28334%29).
+
+        The complete cross-notebook source ledger is available in
+        [workshop source ledger](https://github.com/skp703/cn-workshop-2026/blob/main/docs/SOURCES.md).
+        '''),
+    ])
+    return notebook("01 CN Equation and Runoff Response", "investigation 1", cells)
+
+
+def build_investigation2():
+    """Retain the spatial workflow and add an explicit inquiry section."""
+    base = build_lab2()
+    cells = deepcopy(base["cells"] if isinstance(base, dict) else base.cells)
+    cells[0] = md(r'''
+    # Investigation 2 — Spatial CN for a watershed
+
+    **Participant-directed investigation.** Follow the numbered spatial
+    workflow to produce a watershed boundary, land-cover–soil area table,
+    composite curve number, and design-runoff estimate. Verified reference
+    products support the complete investigation; a registered Earth Engine
+    project can apply the same workflow to a selected watershed.
+
+    **Minimum result:** a mapped boundary and a composite CN reported with year,
+    land-cover source, soil source, hydrologic condition, aggregation convention,
+    analysis scale, and unmapped fraction.
+    ''')
+    report_index = _first_cell(cells, "## Report-out")
+    cells.insert(report_index, md(r'''
+    ## Open investigation — Choose a question
+
+    1. Compare the observed joint land-cover–soil distribution with the product
+       of its marginal distributions.
+    2. Change the watershed, analysis year, hydrologic condition, or soil source
+       while holding the other inputs fixed.
+    3. Examine whether unmapped area or boundary choice materially affects the
+       reported composite.
+    4. Compare the effect on CN with the effect on runoff for the stated design
+       rainfall depth.
+
+    Change one analytical choice at a time and preserve the baseline result.
+    '''))
+    cells[report_index + 1] = md(r'''
+    ## Reporting record
+
+    Record: watershed and outlet; boundary method and area; land-cover and soil
+    sources; year and scale; lookup and aggregation conventions; composite CN;
+    unmapped fraction; design runoff; extension result; and one limitation.
+
+    ## References and data sources
+
+    - U.S. Geological Survey. *Annual National Land Cover Database*.
+      [Collection 1 products and citation](https://www.usgs.gov/centers/eros/science/annual-national-land-cover-database).
+    - USDA Natural Resources Conservation Service.
+      [gNATSGO](https://www.nrcs.usda.gov/resources/data-and-reports/gridded-national-soil-survey-geographic-database-gnatsgo)
+      and [Soil Data Access](https://sdmdataaccess.sc.egov.usda.gov/WebServiceHelp.aspx).
+    - U.S. Environmental Protection Agency. [StreamCat Dataset](https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset).
+    - U.S. Geological Survey. [Network Linked Data Index documentation](https://api.water.usgs.gov/docs/nldi/).
+    - NOAA National Weather Service. [Atlas 14](https://www.weather.gov/owp/hdsc).
+    - USDA NRCS. 2004. [NEH Part 630, Chapter 10](https://directives.nrcs.usda.gov/sites/default/files2/1712930608/7300.pdf).
+
+    The complete cross-notebook source ledger is available in
+    [workshop source ledger](https://github.com/skp703/cn-workshop-2026/blob/main/docs/SOURCES.md).
+    ''')
+    return notebook("02 Spatial CN for a Watershed", "investigation 2", cells)
+
+
+def build_investigation3():
+    """Extract mapped change and hydrologic-condition sensitivity."""
+    base = build_lab3()
+    source_cells = deepcopy(base["cells"] if isinstance(base, dict) else base.cells)
+    part1_start = _first_cell(source_cells, "## Part 1")
+    part2_start = _first_cell(source_cells, "## Part 2")
+    cells = [
+        md(r'''
+        # Investigation 3 — Land-cover change and design runoff
+
+        **Participant-directed investigation.** Quantify a mapped curve-number
+        trajectory while holding the watershed boundary, soil layer, lookup,
+        hydrologic condition, scale, and aggregation convention fixed. Then
+        compare the temporal signal with a hydrologic-condition sensitivity
+        interval and its effect on design runoff.
+
+        **Minimum result:** a CN trajectory, start-to-end change, poor-to-good
+        condition spread, and a statement identifying which inputs changed and
+        which were controlled.
+        '''),
+        code(SETUP),
+        code(r'''
+        import json
+        import os
+        from getpass import getpass
+
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        from IPython.display import display
+
+        from cnkit import runoff
+
+        USE_EARTH_ENGINE = False
+        DELINEATION_INPUT = "gage"       # "gage" or "outlet"
+        GAGE = "01646000"
+        LAT, LON = 38.97594, -77.24581
+        YEARS = [2001, 2004, 2007, 2010, 2013, 2016, 2019]
+        SOILS_SOURCE = "sda"
+        DESIGN_DEPTH_IN = 4.78
+        '''),
+    ]
+    analysis_cells = source_cells[part1_start + 1:part2_start]
+    for cell in analysis_cells:
+        if cell["cell_type"] == "markdown":
+            cell["source"] = cell["source"].replace("### Step", "## Step")
+    cells.extend(analysis_cells)
+    cells.extend([
+        md(r'''
+        ## Step 5 — Translate the trajectory to design runoff
+
+        The nonlinear runoff equation determines whether a small change in CN
+        has a consequential effect at the selected rainfall depth. Calculate
+        runoff for the first and last fair-condition CN values and for the poor
+        and good bounds in the final year.
+        '''),
+        code(r'''
+        design_comparison = pd.Series(
+            {
+                "first-year fair runoff, in": float(runoff(
+                    DESIGN_DEPTH_IN, trajectory.fair.iloc[0], lam=0.20
+                )),
+                "last-year fair runoff, in": float(runoff(
+                    DESIGN_DEPTH_IN, trajectory.fair.iloc[-1], lam=0.20
+                )),
+                "last-year poor runoff, in": float(runoff(
+                    DESIGN_DEPTH_IN, trajectory.poor.iloc[-1], lam=0.20
+                )),
+                "last-year good runoff, in": float(runoff(
+                    DESIGN_DEPTH_IN, trajectory.good.iloc[-1], lam=0.20
+                )),
+            }
+        )
+        display(design_comparison.round(4))
+        '''),
+        md(r'''
+        ## Open investigation — Choose a question
+
+        1. Select different start and end years and explain whether the inferred
+           trend is stable.
+        2. Compare CN change with runoff change at two rainfall depths.
+        3. Use a selected watershed through Earth Engine and compare its signal
+           with the Difficult Run reference trajectory.
+        4. Identify which land-cover transitions would need to be examined to
+           explain the mapped trajectory.
+
+        Record: boundary and years; controlled inputs; CN and runoff changes;
+        condition interval; extension result; interpretation; and limitation.
+        '''),
+        md(r'''
+        ## Method audit
+
+        `cn_trajectory` reuses one watershed and `Basin`, requests the joint
+        land-cover–soil distribution for each year, applies the same lookup and
+        aggregation conventions, and attaches the spatial provenance. The
+        analyst selects the years, data sources, scale, hydrologic condition,
+        design rainfall, and interpretation of the resulting differences.
+
+        ## References and data sources
+
+        - U.S. Geological Survey. [Annual National Land Cover Database](https://www.usgs.gov/centers/eros/science/annual-national-land-cover-database).
+        - USDA Natural Resources Conservation Service.
+          [gNATSGO](https://www.nrcs.usda.gov/resources/data-and-reports/gridded-national-soil-survey-geographic-database-gnatsgo)
+          and [Soil Data Access](https://sdmdataaccess.sc.egov.usda.gov/WebServiceHelp.aspx).
+        - NOAA National Weather Service. [Atlas 14 precipitation-frequency estimates](https://www.weather.gov/owp/hdsc).
+        - USDA NRCS. 2004. [NEH Part 630, Chapter 10](https://directives.nrcs.usda.gov/sites/default/files2/1712930608/7300.pdf).
+
+        The complete cross-notebook source ledger is available in
+        [workshop source ledger](https://github.com/skp703/cn-workshop-2026/blob/main/docs/SOURCES.md).
+        '''),
+    ])
+    return notebook("03 Land-Cover Change and Design Runoff", "investigation 3", cells)
+
+
+def build_investigation4():
+    """Extract event calibration and antecedent-state analysis."""
+    base = build_lab3()
+    source_cells = deepcopy(base["cells"] if isinstance(base, dict) else base.cells)
+    part2_start = _first_cell(source_cells, "## Part 2")
+    audit_start = _first_cell(source_cells, "## Method audit")
+    analysis_cells = source_cells[part2_start + 1:audit_start]
+
+    replacements = {
+        "### Step 5": "## Step 1",
+        "### Step 6": "## Step 2",
+        "### Step 7": "## Step 3",
+        "### Step 8": "## Step 4",
+        "### Step 9": "## Step 5",
+        "### Step 10": "## Step 6",
+            "## Part 3 — Antecedent-condition conventions":
+            "## Part 2 — Antecedent-condition conventions",
+    }
+    for cell in analysis_cells:
+        if cell["cell_type"] == "markdown":
+            for old, new in replacements.items():
+                cell["source"] = cell["source"].replace(old, new)
+
+    cells = [
+        md(r'''
+        # Investigation 4 — Event-derived CN and antecedent state
+
+        **Participant-directed investigation.** Use observed rainfall and
+        direct-runoff events to infer event curve numbers, estimate an
+        asymptotic response, and compare two antecedent-state conventions.
+
+        **Minimum result:** one fitted curve number reported with lambda, event
+        count, model form, and diagnostic, plus one comparison of rainfall-
+        history and root-zone-wetness classifications.
+        '''),
+        code(SETUP),
+        code(r'''
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import pandas as pd
+        from IPython.display import display
+
+        from cnkit import (
+            CN_from_PQ,
+            compare_conventions,
+            doy_climatology,
+            fit_asymptotic,
+            runoff,
+            sm_percentile,
+        )
+
+        DESIGN_DEPTH_IN = 4.78
+        '''),
+        md(r'''
+        ## Part 1 — Curve numbers inferred from observed events
+
+        This part changes the evidence base from spatial lookup tables to
+        rainfall and direct-runoff observations at streamgages.
+        '''),
+    ]
+    cells.extend(analysis_cells)
+    cells.extend([
+        md(r'''
+        ## Open investigation — Choose a question
+
+        1. Compare lambda 0.20 and 0.05 within one watershed and retain the
+           fitted event count and diagnostic.
+        2. Compare Difficult Run and Accotink Creek using the same model and
+           event-screening rules.
+        3. Remove the smallest rainfall events and evaluate the stability of
+           $CN_{\infty}$.
+        4. Change the wetness-climatology window and examine the convention
+           disagreement rate.
+        5. Test whether observed event CN or runoff ratio differs systematically
+           among wetness ranges.
+        '''),
+        md(r'''
+        ## Method audit and reporting record
+
+        | Layer | Library operation | Analyst responsibility |
+        |---|---|---|
+        | `core` | Evaluates and inverts the rainfall–runoff equation | Lambda, event definition, rainfall and runoff basis |
+        | `asymptotic` | Fits the selected response model to event-derived CN | Model family, event screening, and fit interpretation |
+        | `antecedent` | Calculates five-day rainfall and wetness-percentile conventions side by side | Proxy, climatology window, thresholds, and interpretation |
+
+        Record: watershed and event period; equation convention; fitted model,
+        event count, parameter, and diagnostic; antecedent proxies and window;
+        extension result; interpretation; and limitation.
+
+        ## References and data sources
+
+        - Hawkins, R. H. 1993. “Asymptotic Determination of Runoff Curve
+          Numbers from Data.” *Journal of Irrigation and Drainage Engineering*
+          119(2):334–345.
+          [doi:10.1061/(ASCE)0733-9437(1993)119:2(334)](https://doi.org/10.1061/%28ASCE%290733-9437%281993%29119%3A2%28334%29).
+        - Woodward, D. E., R. H. Hawkins, R. Jiang, A. T. Hjelmfelt Jr.,
+          J. A. Van Mullem, and Q. D. Quan. 2003. “Runoff Curve Number Method:
+          Examination of the Initial Abstraction Ratio.” *World Water &
+          Environmental Resources Congress 2003*, 1–10.
+          [doi:10.1061/40685(2003)308](https://doi.org/10.1061/40685%282003%29308).
+        - U.S. Geological Survey. [Water Data for the Nation](https://waterdata.usgs.gov/nwis/),
+          [doi:10.5066/F7P55KJN](https://doi.org/10.5066/F7P55KJN).
+        - PRISM Group, Oregon State University. [PRISM climate data](https://prism.oregonstate.edu/terms/),
+          accessed 9 August 2026 through the
+          [ACIS web service](https://docs.rcc-acis.org/acisws/).
+        - NASA POWER. [Daily API documentation](https://power.larc.nasa.gov/docs/services/api/temporal/daily/).
+        - USDA NRCS. 2004. [NEH Part 630, Chapter 10](https://directives.nrcs.usda.gov/sites/default/files2/1712930608/7300.pdf).
+
+        The complete cross-notebook source ledger is available in
+        [workshop source ledger](https://github.com/skp703/cn-workshop-2026/blob/main/docs/SOURCES.md).
+        '''),
+    ])
+    return notebook("04 Event-Derived CN and Antecedent State", "investigation 4", cells)
+
+
 BUILDERS = {
     "00_Readiness_Check.ipynb": build_readiness,
-    "01_Understand_the_Curve_Number.ipynb": build_lab1,
-    "02_Build_CN_for_a_Watershed.ipynb": build_lab2,
-    "03_Change_and_Uncertainty.ipynb": build_lab3,
+    "01_CN_Equation_and_Runoff_Response.ipynb": build_investigation1,
+    "02_Spatial_CN_for_a_Watershed.ipynb": build_investigation2,
+    "03_Land_Cover_Change_and_Design_Runoff.ipynb": build_investigation3,
+    "04_Event_CN_and_Antecedent_State.ipynb": build_investigation4,
+}
+
+STALE_NOTEBOOKS = {
+    "01_Understand_the_Curve_Number.ipynb",
+    "02_Build_CN_for_a_Watershed.ipynb",
+    "03_Change_and_Uncertainty.ipynb",
 }
 
 
 def main():
+    for filename in STALE_NOTEBOOKS:
+        target = OUT / filename
+        if target.exists():
+            target.unlink()
     for filename, builder in BUILDERS.items():
         target = OUT / filename
         nbf.write(builder(), target)

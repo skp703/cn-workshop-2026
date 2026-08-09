@@ -12,9 +12,10 @@ from nbclient import NotebookClient
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOKS = [
     ROOT / "notebooks" / "00_Readiness_Check.ipynb",
-    ROOT / "notebooks" / "01_Understand_the_Curve_Number.ipynb",
-    ROOT / "notebooks" / "02_Build_CN_for_a_Watershed.ipynb",
-    ROOT / "notebooks" / "03_Change_and_Uncertainty.ipynb",
+    ROOT / "notebooks" / "01_CN_Equation_and_Runoff_Response.ipynb",
+    ROOT / "notebooks" / "02_Spatial_CN_for_a_Watershed.ipynb",
+    ROOT / "notebooks" / "03_Land_Cover_Change_and_Design_Runoff.ipynb",
+    ROOT / "notebooks" / "04_Event_CN_and_Antecedent_State.ipynb",
 ]
 
 CONTENT_REQUIREMENTS = {
@@ -26,18 +27,17 @@ CONTENT_REQUIREMENTS = {
         "## Step 5 — Select a watershed identifier",
         "## Step 6 — Review the readiness record",
     ],
-    "01_Understand_the_Curve_Number.ipynb": [
+    "01_CN_Equation_and_Runoff_Response.ipynb": [
         "## Step 1 — Define the event water-balance model",
         "## Step 2 — Translate CN into retention and initial abstraction",
         "## Step 3 — Evaluate and verify the runoff equation",
         "## Step 4 — Compare distributed and lumped watershed representations",
         "## Step 5 — Examine how compositing depends on storm depth",
         "## Step 6 — Treat lambda and CN as a paired calibration",
-        "## Step 7 — Invert observed rainfall and runoff to event curve numbers",
-        "## Step 8 — Fit and interpret an asymptotic curve number",
-        "## Method audit — Library operation and analyst decision",
+        "## Open investigation — Choose a question",
+        "## Method audit and reporting record",
     ],
-    "02_Build_CN_for_a_Watershed.ipynb": [
+    "02_Spatial_CN_for_a_Watershed.ipynb": [
         "## Step 1 — Identify the watershed and outlet",
         "## Step 2 — Delineate the watershed boundary",
         "## Step 3 — Verify and inspect the boundary",
@@ -51,21 +51,29 @@ CONTENT_REQUIREMENTS = {
         "## Step 11 — Calculate design runoff and assemble provenance",
         "## What the convenience method does",
         "## Method audit — Library operation and analyst decision",
+        "## Open investigation — Choose a question",
+        "## Reporting record",
     ],
-    "03_Change_and_Uncertainty.ipynb": [
-        "### Step 1 — Define what changes and what remains fixed",
-        "### Step 2 — Load the recorded Earth Engine trajectory",
-        "### Step 3 — Interpret the hydrologic-condition interval",
-        "### Step 4 — Understand how `cn_trajectory` performs the calculation",
-        "### Step 4A — Delineate a selected watershed",
-        "### Step 4B — Calculate the annual trajectory",
-        "### Step 5 — Invert the rainfall–runoff equation",
-        "### Step 6 — Estimate the standard asymptotic response",
-        "### Step 7 — Treat lambda and CN as a paired calibration",
-        "### Step 8 — Distinguish rainfall history from observed wetness",
-        "### Step 9 — Compare the conventions on the same storm dates",
-        "### Step 10 — Relate wetness rank to observed event response",
-        "## Method audit — Library operation and analyst decision",
+    "03_Land_Cover_Change_and_Design_Runoff.ipynb": [
+        "## Step 1 — Define what changes and what remains fixed",
+        "## Step 2 — Load the recorded Earth Engine trajectory",
+        "## Step 3 — Interpret the hydrologic-condition interval",
+        "## Step 4 — Understand how `cn_trajectory` performs the calculation",
+        "## Step 4A — Delineate a selected watershed",
+        "## Step 4B — Calculate the annual trajectory",
+        "## Step 5 — Translate the trajectory to design runoff",
+        "## Open investigation — Choose a question",
+        "## Method audit",
+    ],
+    "04_Event_CN_and_Antecedent_State.ipynb": [
+        "## Step 1 — Invert the rainfall–runoff equation",
+        "## Step 2 — Estimate the standard asymptotic response",
+        "## Step 3 — Treat lambda and CN as a paired calibration",
+        "## Step 4 — Distinguish rainfall history from observed wetness",
+        "## Step 5 — Compare the conventions on the same storm dates",
+        "## Step 6 — Relate wetness rank to observed event response",
+        "## Open investigation — Choose a question",
+        "## Method audit and reporting record",
     ],
 }
 
@@ -74,18 +82,39 @@ CODE_REQUIREMENTS = {
         'WATERSHED_INPUT = "reference"',
         "WATERSHED_CONFIG = {",
         "WATERSHED_SELECTION_READY = True",
-        'print("Readiness check complete. Continue to Lab 1.")',
+        'print("Readiness check complete. Continue to the common workshop introduction.")',
     ],
-    "02_Build_CN_for_a_Watershed.ipynb": [
+    "02_Spatial_CN_for_a_Watershed.ipynb": [
         "ADD_BACKGROUND_MAP = True",
         '"USGSTopo/MapServer/export"',
         '"Basemap: USGS The National Map — USGS Topo"',
     ],
-    "03_Change_and_Uncertainty.ipynb": [
+    "03_Land_Cover_Change_and_Design_Runoff.ipynb": [
+        "design_comparison = pd.Series",
+        '"last-year fair runoff, in": float(runoff(',
+    ],
+    "04_Event_CN_and_Antecedent_State.ipynb": [
         "paired_calibration = pd.DataFrame(paired_rows)",
         'runoff(DESIGN_DEPTH_IN, fitted.cn_inf, lam=lam)',
     ],
 }
+
+GEE_SOURCE_NOTEBOOKS = {
+    "00_Readiness_Check.ipynb",
+    "02_Spatial_CN_for_a_Watershed.ipynb",
+    "03_Land_Cover_Change_and_Design_Runoff.ipynb",
+}
+
+GEE_SOURCE_REQUIREMENTS = [
+    "USGS/WBD/2017/HUC12",
+    "USGS/NLCD_RELEASES/2019_REL/NLCD",
+    "projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER",
+    "projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/FRACTIONAL_IMPERVIOUS_SURFACE",
+    "projects/sat-io/open-datasets/gNATSGO/raster/mukey",
+    "projects/sat-io/open-datasets/HiHydroSoilv2_0/Hydrologic_Soil_Group_250m",
+    "USDA NRCS Soil Data Access",
+    "USGS NLDI",
+]
 
 
 def validate_markdown_math(markdown: str, path: Path) -> None:
@@ -143,6 +172,12 @@ def validate(path: Path) -> None:
     for required_text in CONTENT_REQUIREMENTS.get(path.name, []):
         if required_text not in markdown:
             raise ValueError(f"missing {required_text!r} in {path.name}")
+    if path.name in GEE_SOURCE_NOTEBOOKS:
+        for required_text in GEE_SOURCE_REQUIREMENTS:
+            if required_text not in markdown:
+                raise ValueError(
+                    f"missing Earth Engine source {required_text!r} in {path.name}"
+                )
 
     source_code = "\n".join(
         cell.source for cell in notebook.cells if cell.cell_type == "code"

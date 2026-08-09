@@ -1,11 +1,13 @@
 # Get Google Earth Engine access
 
-Earth Engine supports application of the workshop methods to a
-participant-selected watershed. The reference-data pathway provides the same
-analytical sequence using verified records for Difficult Run and Accotink Creek.
+Earth Engine is introduced through a twenty-minute guided exercise in the web
+Code Editor. It also supports selected-watershed applications in the spatial
+and temporal investigation notebooks. Versioned records for Difficult Run and
+Accotink Creek support the same scientific analyses and reporting requirements.
 
-In Google Colab, the Earth Engine Python client is already available. You are
-setting up access to the service rather than installing desktop software.
+The Code Editor runs in a browser, and Google Colab includes the Earth Engine
+Python client. You are setting up access to the service rather than installing
+desktop software.
 
 ## What you need
 
@@ -26,12 +28,16 @@ noncommercial educational work.
 4. Enable the Google Earth Engine API for that project.
 5. Register the project at the Earth Engine registration page and choose the
    category that honestly describes your work.
-6. Open `00_Readiness_Check.ipynb` in Colab.
-7. Enter the project ID when prompted and run the Earth Engine check.
+6. Open the [Earth Engine Code Editor](https://code.earthengine.google.com/).
+7. Open `00_Readiness_Check.ipynb` in Colab.
+8. Enter the project ID when prompted and run the Earth Engine check.
 
 The check authenticates your account, initializes Earth Engine with the project
 ID, and asks the service to evaluate a small arithmetic expression. A printed
 value of `42` confirms that the notebook can submit Earth Engine requests.
+
+Before the session, also open `gee/README.md`. The guided script is intentionally
+short and remains available for continued experimentation after the workshop.
 
 ## Project permissions
 
@@ -45,4 +51,6 @@ project access with their administrator before the workshop.
 - Earth Engine access: <https://developers.google.com/earth-engine/guides/access>
 - Python authentication and initialization: <https://developers.google.com/earth-engine/guides/auth>
 - Earth Engine in Colab: <https://developers.google.com/earth-engine/guides/python_install-colab>
+- Code Editor guide: <https://developers.google.com/earth-engine/guides/playground>
+- Official tutorials: <https://developers.google.com/earth-engine/tutorials>
 - Noncommercial tiers: <https://developers.google.com/earth-engine/guides/noncommercial_tiers>

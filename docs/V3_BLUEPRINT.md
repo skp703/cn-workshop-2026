@@ -2,114 +2,137 @@
 
 ## Communication job
 
-The participant should leave with a result, not a folder of examples:
+Participants should leave able to distinguish the Curve Number model from the
+evidence used to estimate its parameters, use Earth Engine to inspect
+watershed-scale spatial data, and defend one analytical result.
 
-> Build and audit a curve number for a real watershed, then state which parts
-> are measurements and which are assumptions.
+The workshop is organized around a common foundation followed by participant
+inquiry:
 
-V3 replaces the nine-deck, eight-core-notebook sequence with one master deck,
-three labs, one readiness check, and one participant portal. The schedule on
-the site, in the slides, in the notebooks, and in the instructor runbook is the
-same schedule.
+1. ten-minute introduction;
+2. thirty-minute Curve Number theory block;
+3. twenty-minute guided Earth Engine exercise;
+4. optional Earth Engine exploration during the first break;
+5. ninety-minute participant-directed investigation period; and
+6. comparative report-outs, synthesis, resources, and feedback.
 
-## Lecture–notebook integration
+## Roles of the teaching artifacts
 
-The master deck and notebooks serve different academic functions.
+- The lecture deck establishes the scientific problem, develops the governing
+  equations, explains the evidence types, frames the GEE demonstration, and
+  structures the report-outs.
+- The Code Editor script introduces Earth Engine objects and operations through
+  one watershed land-surface example.
+- The notebooks expose equations, intermediate values, library operations,
+  verification checks, extensions, and reporting records.
+- The participant portal is the entry point for preparation, schedule,
+  investigation selection, resources, and feedback.
 
-- The deck introduces the analytical problem, governing equations, evidence
-  types, spatial transformations, methodological choices, and reporting
-  implications.
-- The notebooks provide the complete executable derivation, numbered workflow,
-  intermediate outputs, assertions, library explanations, figures, and method
-  audit.
-- Each lecture block ends with a laboratory launch slide, and each laboratory
-  ends with a report-out question that requires interpretation of the result.
+## Participant investigations
 
-This structure supports live instruction without turning slides into code
-documentation or requiring participants to infer the scientific problem from
-notebook cells alone. The notebooks remain complete enough for independent
-review after the workshop.
+The readiness notebook is pre-work and is not counted as an investigation.
 
-## Two synchronized data pathways
+| Investigation | Research focus | Minimum reportable result |
+|---|---|---|
+| CN equation and runoff response | Rainfall depth, lambda, and spatial aggregation | Runoff comparison under two stated conventions |
+| Spatial CN for a watershed | Boundary, land cover, soils, spatial pairing, and composite CN | Mapped boundary and CN with provenance |
+| Land-cover change and design runoff | Temporal signal relative to condition sensitivity | Trajectory and runoff comparison |
+| Event-derived CN and antecedent state | Event inversion, asymptotic fit, and antecedent proxy | Fitted CN and antecedent-state comparison |
 
-- The **reference-data pathway** uses verified outputs for several contrasting
-  watersheds. It completes every hydrologic calculation and every learning
-  objective.
-- The **Earth Engine pathway** applies the spatial workflow to a
-  participant-selected watershed.
+Each notebook contains a guided core that can be completed before selecting an
+extension. Participants choose one primary investigation rather than following
+all notebooks sequentially.
 
-Both pathways use the same result schemas and rejoin for every report-out. A
-live analysis and a reference-data analysis can therefore be interpreted through
-the same questions and reporting framework.
+## Data and computation
+
+Earth Engine is taught as a spatial-analysis environment before the notebook
+period. Investigation 2 and Investigation 3 support direct application to a
+selected watershed through Earth Engine. Versioned workshop products support
+the complete analytical and reporting requirements of all four investigations.
+
+Both live and versioned results must retain the applicable watershed, year,
+source asset, scale, lookup, equation convention, and unmapped-area information.
 
 ## Four-hour run of show
 
 | Time | Block | Minutes | Lead |
 |---|---|---:|---|
-| 0:00 | Welcome and what you will build | 10 | Both |
-| 0:10 | Introduction: from rainfall to curve number | 40 | John |
-| 0:50 | Lab 1: understand and audit the equation | 20 | Both circulate |
-| 1:10 | Report-out 1 | 10 | John |
-| 1:20 | Break | 15 | |
-| 1:35 | From lookup tables to Earth Observation | 25 | Saurav |
-| 2:00 | Lab 2: build a CN for a watershed | 35 | Both circulate |
-| 2:35 | Report-out 2 | 10 | Saurav |
-| 2:45 | Break | 15 | |
-| 3:00 | Change, antecedent condition, and uncertainty | 20 | Saurav |
-| 3:20 | Lab 3: change and uncertainty | 25 | Both circulate |
-| 3:45 | What would you defend in a report? | 15 | Both |
+| 0:00 | Introduction and workshop outcomes | 10 | Both |
+| 0:10 | Curve Number theory | 30 | John |
+| 0:40 | Getting started with Google Earth Engine | 20 | Saurav |
+| 1:00 | Break and optional GEE exploration | 20 | Both available |
+| 1:20 | Introduce investigations and form groups | 10 | Both |
+| 1:30 | Participant-directed notebook investigations | 90 | Both circulate |
+| 3:00 | Break | 15 | |
+| 3:15 | Participant report-outs and discussion | 30 | Both |
+| 3:45 | Synthesis, resources, and feedback | 15 | Both |
 | 4:00 | End | | |
 
-## V2 to V3 content map
+## Common reporting record
 
-| V2 material | V3 destination |
-|---|---|
-| Welcome deck | Master deck opening and participant portal |
-| Part 0 fundamentals + Part 1 | One forty-minute introduction |
-| A1 and A2 | Lab 1, with the strongest calculations retained |
-| Part 2 + B1/B2/B3 | Earth Observation lecture and Lab 2 |
-| D1 + D2 | Live branch of Lab 2 |
-| Part 3 + C1/C2/C3 | Uncertainty lecture and prepared branch of Lab 3 |
-| D3 | Live branch of Lab 3 |
-| Recent developments and close | Final synthesis and reporting checklist |
-| GEE account guide | Pre-work setup page and readiness notebook |
+Every investigation ends with the same six elements:
+
+1. analytical question;
+2. watershed or dataset;
+3. data source, year, scale, and equation convention;
+4. assumption or comparison examined;
+5. principal quantitative result; and
+6. interpretation and limitation.
+
+This common structure allows cross-investigation discussion even when groups
+select different questions.
+
+## Feedback instrument
+
+The anonymous Google Form evaluates:
+
+- theory-section clarity;
+- Earth Engine introduction clarity;
+- the balance of guidance and analytical choice;
+- ability to identify reportable data sources and assumptions;
+- relevance to professional, teaching, or research work;
+- time allocation;
+- topics that should receive more time; and
+- optional written recommendations.
 
 ## Public/private boundary
 
 Public:
 
-- Participant portal and schedule
-- Readiness notebook and three attendee labs
-- Prepared data pack
-- Master lecture deck
-- Participant guide and Earth Engine setup guide
-- Source citations, environment files, and reproducible build scripts
+- participant portal and schedule;
+- readiness notebook and four investigations;
+- GEE teaching script and continuing resources;
+- prepared data pack;
+- lecture deck;
+- participant guide and Earth Engine setup guide;
+- feedback form;
+- source citations, environment files, and reproducible build scripts.
 
 Instructor-only until release:
 
-- Solutions and answer keys
-- Dry-run observations and timing notes
-- Instructor Earth Engine extraction notebook
-- Internal validation results requiring credentials
-- Conference contacts and logistical correspondence
+- solutions and answer keys;
+- dry-run observations and timing notes;
+- instructor Earth Engine extraction notebooks;
+- internal validation results requiring credentials;
+- conference contacts and logistical correspondence.
 
 ## Design principles
 
-1. The method comes before the platform.
-2. Lecture frames the problem; the notebook exposes the calculation.
-3. Reference datasets and Earth Engine outputs use the same analytical schema.
-4. Every lab produces one reportable artifact.
-5. Prepared and live data share the same schema.
-6. Every number shown in slides is pinned by a test or source record.
-7. The site is the participant's front door; Drive is not part of the normal path.
-8. Earth Engine resources remain available for continued watershed applications
-   after the scheduled session.
+1. Establish the model before introducing the platform.
+2. Teach Earth Engine through one coherent hydrologic example.
+3. Use notebooks for participant investigation rather than sequential lecture
+   transcription.
+4. Give every investigation a minimum analytical result and open extensions.
+5. Preserve intermediate results and provenance.
+6. Use the same reporting structure across investigations.
+7. Pin every numerical example to a test or source record.
+8. Keep the participant portal, deck, notebooks, GEE exercise, and runbook on
+   the same schedule.
 
 ## V3 live anchors
 
-The Earth Engine notebooks were executed successfully on 6 August 2026 after
-the initial V2 handoff was written. V3 uses those observed live values rather
-than the earlier estimates:
+The Earth Engine notebooks were executed successfully on 6 August 2026. These
+observed values support the spatial and temporal investigations:
 
 | Quantity | Live result |
 |---|---:|
@@ -121,6 +144,6 @@ than the earlier estimates:
 | Assumption-to-signal ratio | 29.4 |
 | Raster soil area with no HSG | 21.2655% |
 
-The earlier 4.50-CN figure is a range between extreme feasible pairings of the
-two tabular marginals. It is a bound, not the measured Earth Engine correction,
-and V3 labels it accordingly whenever it is retained as a teaching example.
+The earlier 4.50-CN example is the range between extreme feasible pairings of
+two tabular marginals. It is a bound rather than the measured Earth Engine
+correction and must be labeled accordingly when retained.

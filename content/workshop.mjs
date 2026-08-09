@@ -1,6 +1,9 @@
+export const feedbackUrl =
+  "https://docs.google.com/forms/d/e/1FAIpQLSeavvSSEWlNcENVxCJZW9g22rztcJpi2Cd6ba6smZ9JX9toSA/viewform";
+
 export const workshop = {
   title: "Modern Curve Number Hydrology",
-  subtitle: "Theory, spatial estimation, and Earth Observation applications",
+  subtitle: "Theory, Earth Engine, and participant-directed investigations",
   conference: "2026 ASCE–EWRI Watershed Management Conference",
   duration: "Four hours · 4.0 PDH",
   instructors: [
@@ -14,139 +17,163 @@ export const workshop = {
     },
   ],
   promise:
-    "Evaluate the theoretical basis of the curve-number method, estimate its parameters from spatial data, and document the assumptions that govern interpretation.",
-  paths: {
-    core: {
-      label: "Reference data pathway",
-      short: "Use verified workshop datasets",
-      description:
-        "Use verified land-cover, soil, rainfall, runoff, and soil-moisture datasets for the two workshop watersheds. This pathway supports the complete sequence of analyses and interpretations.",
-    },
-    gee: {
-      label: "Earth Engine application",
-      short: "Analyze a selected watershed",
-      description:
-        "Use a registered Earth Engine project with a USGS gage number or outlet coordinates to repeat the spatial analysis for a selected watershed.",
-    },
-  },
+    "Develop the theoretical basis of the curve-number method, learn how Earth Engine summarizes watershed spatial data, and investigate a hydrologic question using reproducible notebooks.",
   outcomes: [
-    "Explain the curve-number equation, its calibration constants, and its limits.",
-    "Delineate and verify a watershed boundary from a gage or outlet point.",
-    "Build a composite curve number from land cover and hydrologic soil group.",
-    "Compare measured change with uncertainty from condition, soil gaps, and compositing.",
-    "Formulate a reproducible engineering-report statement and justify its assumptions.",
+    "Explain the event runoff equation, its threshold, and the relationship among CN, retention, and initial abstraction.",
+    "Distinguish table values, spatial estimates, and event-derived curve numbers.",
+    "Use the Earth Engine Code Editor to visualize and summarize watershed land-surface data.",
+    "Complete one participant-directed investigation and test an analytical choice or assumption.",
+    "Report a quantitative result with its data sources, conventions, interpretation, and limitation.",
   ],
-  schedule: [
-    ["0:00", "Welcome and what you will build", "10 min", "Both"],
-    ["0:10", "Introduction: from rainfall to curve number", "40 min", "John"],
-    ["0:50", "Lab 1: understand and audit the equation", "20 min", "Both circulate"],
-    ["1:10", "Report-out 1", "10 min", "John"],
-    ["1:20", "Break", "15 min", ""],
-    ["1:35", "From lookup tables to Earth Observation", "25 min", "Saurav"],
-    ["2:00", "Lab 2: build a CN for a watershed", "35 min", "Both circulate"],
-    ["2:35", "Report-out 2", "10 min", "Saurav"],
-    ["2:45", "Break", "15 min", ""],
-    ["3:00", "Change, antecedent condition, and uncertainty", "20 min", "Saurav"],
-    ["3:20", "Lab 3: change and uncertainty", "25 min", "Both circulate"],
-    ["3:45", "What would you defend in a report?", "15 min", "Both"],
-    ["4:00", "End", "", ""],
-  ],
-  modules: [
+  phases: [
     {
       number: "01",
-      eyebrow: "Foundations",
-      title: "The theoretical basis of the method",
-      time: "0:10–1:20",
-      narrative:
-        "Start with the observation, derive the equation, and make the conventions visible before touching a satellite product.",
+      title: "Curve Number theory",
+      time: "30 minutes",
+      description:
+        "Develop the rainfall–runoff equation, threshold behavior, parameter conventions, spatial aggregation, and evidence bases used to estimate CN.",
+    },
+    {
+      number: "02",
+      title: "Getting started with Earth Engine",
+      time: "20 minutes + exploration interval",
+      description:
+        "Use the web Code Editor to select a watershed-scale geometry, display NLCD layers over a background map, inspect pixels, and calculate a class-area summary.",
+    },
+    {
+      number: "03",
+      title: "Participant-directed investigations",
+      time: "90 minutes",
+      description:
+        "Select one notebook, complete its guided analytical core, and extend the analysis through a participant-selected comparison or sensitivity question.",
+    },
+  ],
+  schedule: [
+    ["0:00", "Introduction and workshop outcomes", "10 min", "Both"],
+    ["0:10", "Curve Number theory", "30 min", "John"],
+    ["0:40", "Getting started with Google Earth Engine", "20 min", "Saurav"],
+    ["1:00", "Break and optional GEE exploration", "20 min", "Both available"],
+    ["1:20", "Introduce investigations and form groups", "10 min", "Both"],
+    ["1:30", "Participant-directed notebook investigations", "90 min", "Both circulate"],
+    ["3:00", "Break", "15 min", ""],
+    ["3:15", "Participant report-outs and discussion", "30 min", "Both"],
+    ["3:45", "Synthesis, resources, and feedback", "15 min", "Both"],
+    ["4:00", "End", "", ""],
+  ],
+  investigations: [
+    {
+      number: "01",
+      eyebrow: "Equation behavior",
+      title: "CN equation and runoff response",
+      question:
+        "How do storm depth, lambda, and spatial aggregation alter calculated runoff?",
       concepts: [
-        "Rainfall, initial abstraction, retention, and runoff",
-        "What a curve number is—and is not",
-        "Hydrologic soil group, land cover, and hydrologic condition",
-        "Lambda 0.20 versus 0.05",
-        "The composite-CN weighting trap",
+        "Retention and the runoff threshold",
+        "Lambda and paired parameter conventions",
+        "Distributed versus composite runoff",
+        "Storm-depth dependence of aggregation",
       ],
+      minimum:
+        "Complete the equation and compositing comparison, then preserve a baseline and one modified result.",
+      extensions:
+        "Change storm depth, lambda, or subarea heterogeneity and explain whether the interpretation changes.",
+      result:
+        "A figure or table comparing runoff under two explicitly stated conventions.",
       notebook: {
-        label: "Open Lab 1 in Colab",
-        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/01_Understand_the_Curve_Number.ipynb",
-        source: "./notebooks/01_Understand_the_Curve_Number.ipynb",
+        label: "Open Investigation 1 in Colab",
+        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/01_CN_Equation_and_Runoff_Response.ipynb",
+        source: "./notebooks/01_CN_Equation_and_Runoff_Response.ipynb",
       },
-      core:
-        "Complete the analytical examples using the runoff equation and small embedded datasets.",
-      gee:
-        "Complete the same analytical examples. Earth Engine enters in the spatial-estimation module after the theoretical framework is established.",
-      takeaway:
-        "A curve number is an index fitted to a rainfall–runoff relation, not a directly observed property of a pixel.",
     },
     {
       number: "02",
       eyebrow: "Spatial estimation",
-      title: "Estimating a curve number for a watershed",
-      time: "1:35–2:45",
-      narrative:
-        "Move from two independent lookup tables to a spatial measurement and compare the implications of alternative data sources.",
+      title: "Spatial CN for a watershed",
+      question:
+        "How do watershed boundaries, land cover, soils, and spatial pairing determine a composite CN?",
       concepts: [
-        "Watershed delineation and boundary verification",
+        "Outlet selection and boundary verification",
         "Land-cover and soil provenance",
-        "Marginal versus joint distributions",
-        "Unmapped soil and resolution mismatch",
-        "Composite CN with uncertainty stated",
+        "Joint versus marginal distributions",
+        "Composite CN and unmapped-area accounting",
       ],
+      minimum:
+        "Build or audit the boundary-to-runoff workflow using a reference watershed or a selected watershed through Earth Engine.",
+      extensions:
+        "Change the watershed, year, hydrologic condition, soil source, or pairing assumption while controlling the other inputs.",
+      result:
+        "A mapped boundary and composite CN with complete spatial provenance.",
       notebook: {
-        label: "Open Lab 2 in Colab",
-        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/02_Build_CN_for_a_Watershed.ipynb",
-        source: "./notebooks/02_Build_CN_for_a_Watershed.ipynb",
+        label: "Open Investigation 2 in Colab",
+        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/02_Spatial_CN_for_a_Watershed.ipynb",
+        source: "./notebooks/02_Spatial_CN_for_a_Watershed.ipynb",
       },
-      core:
-        "Select Difficult Run or Accotink Creek and examine verified land-cover, soil, joint-distribution, and provenance records.",
-      gee:
-        "Enter a USGS gage or outlet coordinates, delineate the basin, retrieve land cover and soils, and estimate the joint distribution pixel by pixel.",
-      takeaway:
-        "The joint spatial distribution removes an independence assumption whose effect exceeds the measured land-cover trend.",
     },
     {
       number: "03",
-      eyebrow: "Evaluation",
-      title: "Temporal change, antecedent state, and uncertainty",
-      time: "3:00–4:00",
-      narrative:
-        "Put a measured trajectory inside the uncertainty band created by the method, then decide what belongs in a report.",
+      eyebrow: "Temporal evidence",
+      title: "Land-cover change and design runoff",
+      question:
+        "How large is the mapped temporal signal relative to hydrologic-condition sensitivity?",
       concepts: [
-        "Multi-year CN trajectory",
-        "Poor–fair–good hydrologic-condition band",
-        "Asymptotic CN from measured storms",
-        "Antecedent rainfall versus observed soil moisture",
-        "A defensible provenance statement",
+        "Controlled multi-year CN trajectory",
+        "Poor-to-good condition interval",
+        "Signal-to-assumption comparison",
+        "Translation from CN change to runoff change",
       ],
+      minimum:
+        "Calculate a trajectory, start-to-end change, condition spread, and corresponding design-runoff comparison.",
+      extensions:
+        "Change the time interval, design rainfall, or watershed and evaluate the stability of the conclusion.",
+      result:
+        "A trajectory and a quantitative comparison between mapped change and methodological sensitivity.",
       notebook: {
-        label: "Open Lab 3 in Colab",
-        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/03_Change_and_Uncertainty.ipynb",
-        source: "./notebooks/03_Change_and_Uncertainty.ipynb",
+        label: "Open Investigation 3 in Colab",
+        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/03_Land_Cover_Change_and_Design_Runoff.ipynb",
+        source: "./notebooks/03_Land_Cover_Change_and_Design_Runoff.ipynb",
       },
-      core:
-        "Analyze verified trajectories and storm records for the reference watersheds, including fitted curve numbers and antecedent soil-moisture comparisons.",
-      gee:
-        "Generate a trajectory and condition band for a selected watershed, then compare its scale with the measured-gage evidence from the reference watersheds.",
-      takeaway:
-        "Improved inputs make the remaining methodological uncertainty explicit; report the trajectory with its condition band and assumptions.",
+    },
+    {
+      number: "04",
+      eyebrow: "Observed response",
+      title: "Event-derived CN and antecedent state",
+      question:
+        "What CN values are supported by observed events, and how do antecedent-state conventions affect interpretation?",
+      concepts: [
+        "Inverse rainfall–runoff equation",
+        "Hawkins asymptotic response",
+        "Lambda as part of the calibration",
+        "Rainfall history versus root-zone wetness",
+      ],
+      minimum:
+        "Fit an event-derived response and compare two antecedent-state classifications on the same storm dates.",
+      extensions:
+        "Change the watershed, lambda, event screening, or climatology window and evaluate the stability of the result.",
+      result:
+        "A fitted CN record and an antecedent-state comparison with diagnostics and limitations.",
+      notebook: {
+        label: "Open Investigation 4 in Colab",
+        href: "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/04_Event_CN_and_Antecedent_State.ipynb",
+        source: "./notebooks/04_Event_CN_and_Antecedent_State.ipynb",
+      },
     },
   ],
   evidence: [
-    ["0.29", "CN units", "live GEE land-cover change, 2001–2019"],
-    ["8.45", "CN units", "live GEE hydrologic-condition spread"],
-    ["1.88", "CN units", "independence assumption, measured with the same raster marginals"],
-    ["5.8", "CN units", "table value above the fitted value at Difficult Run"],
+    ["0.29", "CN units", "mapped Difficult Run change, 2001–2019"],
+    ["8.45", "CN units", "poor-to-good hydrologic-condition spread"],
+    ["1.88", "CN units", "effect of the spatial independence assumption"],
+    ["5.8", "CN units", "table value above fitted Difficult Run value"],
   ],
   preparedWatersheds: [
     ["Difficult Run, VA", "Suburban Piedmont", "Complete reference basin"],
-    ["Accotink Creek, VA", "Urban Coastal Plain", "Contrasting fitted behavior"],
+    ["Accotink Creek, VA", "Urban Coastal Plain", "Contrasting event response"],
   ],
   prepare: [
     {
       title: "General preparation",
       items: [
         "Bring a laptop and charger.",
-        "Use a modern browser and a Google account if you want to save a Colab copy.",
+        "Use a modern browser and a Google account if you want to save Colab copies.",
         "Open the readiness notebook once before the workshop.",
       ],
     },
@@ -155,25 +182,29 @@ export const workshop = {
       items: [
         "Create or select a Google Cloud project.",
         "Enable and register the project for Earth Engine.",
-        "Run the one-minute authentication check in Colab.",
+        "Open the Code Editor and run the readiness check.",
       ],
     },
     {
-      title: "Watershed selection",
+      title: "Investigation selection",
       items: [
-        "A USGS gage number provides the most direct watershed identifier.",
-        "Outlet latitude and longitude also work for CONUS basins.",
-        "The reference watersheds are also available for the laboratory analysis.",
+        "Review the four investigation questions before the notebook period.",
+        "Bring a USGS gage number or outlet coordinates for a selected watershed application.",
+        "Reference datasets support every investigation and reporting requirement.",
       ],
     },
   ],
   resources: [
+    ["GEE guided exercise", "Twenty-minute Code Editor exercise and optional exploration prompts", "./gee/README.md"],
+    ["Extended GEE tutorials", "Official, community, and hydrology-focused continuing resources", "https://github.com/skp703/RSTC_Workshop/tree/main/GEE#tutorials-from-the-web"],
     ["Earth Engine setup", "Project registration, authentication, and Colab initialization", "./docs/GEE_SETUP.md"],
     ["Readiness check", "Verify Colab, cnkit, reference data, and Earth Engine access", "https://colab.research.google.com/github/skp703/cn-workshop-2026/blob/main/notebooks/00_Readiness_Check.ipynb"],
     ["Workshop data", "Versioned, checksum-verified prepared inputs", "./downloads/cn_workshop_v3_data.zip"],
     ["cnkit", "Installable hydrology library and API documentation", "https://github.com/skp703/cnkit"],
-    ["Lecture deck", "Complete v3 lecture and exercise slides", "./downloads/2026_CN_Workshop_v3.pptx"],
-    ["Participant guide", "Workshop preparation, navigation, and deliverables", "./docs/PARTICIPANT_GUIDE.md"],
+    ["Lecture deck", "CN theory, GEE orientation, investigation launch, and synthesis", "./downloads/2026_CN_Workshop_v3.pptx"],
+    ["Participant guide", "Workshop preparation, navigation, and reporting expectations", "./docs/PARTICIPANT_GUIDE.md"],
+    ["Sources and citations", "Verified method, dataset, and service references used throughout the workshop", "./docs/SOURCES.md"],
+    ["Workshop feedback", "Anonymous five-minute evaluation form", feedbackUrl],
   ],
 };
 

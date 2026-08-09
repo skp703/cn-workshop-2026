@@ -2,89 +2,151 @@
 
 ## Instructional structure
 
-Use the lecture deck and notebooks as complementary teaching artifacts. The
-deck frames the engineering problem, develops the governing theory, explains
-the data transformations, and identifies the decisions that require judgment.
-The notebooks then expose the equations, intermediate values, library
-operations, verification checks, and reportable outputs in executable form.
-Neither artifact needs to carry the entire workshop alone.
+The workshop uses three complementary teaching environments:
 
-The teaching cadence is therefore:
+- PowerPoint establishes the workshop question and develops Curve Number
+  theory.
+- The Earth Engine Code Editor provides a brief, guided introduction to cloud
+  geospatial analysis.
+- Four investigation notebooks support participant-directed analysis,
+  extension, and interpretation.
 
-1. state the analytical question in the deck;
-2. develop the governing relation or spatial method;
-3. explain what `cnkit` computes and what the analyst must select;
-4. move to the linked notebook for calculation and inspection; and
-5. return to the deck for a report-out framed as an interpretive question.
+The notebook period is intentionally participant-directed. It is not
+unscaffolded: every notebook states a research question, provides a minimum
+guided result, exposes intermediate calculations, explains relevant `cnkit`
+operations, offers several extensions, and ends with a common reporting record.
 
-Use these slide ranges during the four-hour workshop:
+## Four-hour run of show
 
-| Block | Slides | Notebook transition |
-|---|---:|---|
-| Orientation | 1–6 | Readiness Check before the workshop or at entry |
-| Foundations and calibration | 7–15 | Slide 16 launches Notebook 01 |
-| Lab 1 report-out | 17 | Return to the deck after the calculation |
-| Earth Observation and spatial estimation | 18–34 | Slide 35 launches Notebook 02 |
-| Lab 2 report-out | 36 | Return to the deck after the watershed result |
-| Change, calibration, and antecedent state | 37–42 | Slide 43 launches Notebook 03 |
-| Lab 3 report-out and synthesis | 44–48 | Complete the reporting statement before the close |
+| Time | Block | Minutes | Lead |
+|---|---|---:|---|
+| 0:00 | Introduction and workshop outcomes | 10 | Both |
+| 0:10 | Curve Number theory | 30 | John |
+| 0:40 | Getting started with Google Earth Engine | 20 | Saurav |
+| 1:00 | Break and optional GEE exploration | 20 | Both available |
+| 1:20 | Introduce investigations and form groups | 10 | Both |
+| 1:30 | Participant-directed notebook investigations | 90 | Both circulate |
+| 3:00 | Break | 15 | |
+| 3:15 | Participant report-outs and discussion | 30 | Both |
+| 3:45 | Synthesis, resources, and feedback | 15 | Both |
+| 4:00 | End | | |
 
-The workshop presents two data pathways within this common analytical
-framework.
+## Opening: ten minutes
 
-At each lab, put both options on the screen:
+1. State the workshop question and five learning outcomes.
+2. Explain the theory → Earth Engine → investigation sequence.
+3. Show the common six-part reporting record.
+4. Introduce the four investigation questions without explaining their
+   procedures.
 
-- **Reference data:** verified inputs for Difficult Run and Accotink Creek.
-- **Earth Engine:** spatial inputs for a participant-selected watershed.
+## Curve Number theory: thirty minutes
 
-Participants may move between the pathways because both use the same result
-schema and report-out questions. The Earth Engine setup guide and readiness
-check support watershed-specific application; the versioned reference pathway
-supports the complete analytical sequence with the same interpretation and
-reporting requirements.
+Use one numerical example throughout.
 
-## Roles
+| Minutes | Focus |
+|---:|---|
+| 0–5 | Event water balance and the purpose of the method |
+| 5–12 | CN, retention, and initial abstraction |
+| 12–18 | Piecewise runoff equation, threshold, and lambda |
+| 18–24 | Land cover, HSG, condition, and spatial aggregation |
+| 24–30 | Table, spatial, and event-derived CN; reportable assumptions |
 
-- John leads the forty-minute introduction, Lab 1 report-out, and the reporting
-  implications of lambda, weighting, and table values.
-- Saurav leads the Earth Observation block, including delineation, the Earth
-  Engine computation model, Annual NLCD, soils, joint distributions, and the
-  Lab 2 report-out. Saurav also leads the uncertainty and antecedent-state block.
-- Both instructors circulate during labs and share the close.
-- Four helpers is the target for a room of forty. Brief them on the setup-cell
-  output and the shared result schema for both pathways.
+Retain calibration, detailed spatial processing, temporal sensitivity, and
+antecedent-state analysis for the investigation notebooks.
 
-## Room setup
+## Earth Engine introduction: twenty minutes
 
-- Classroom or rounds, not theater seating.
-- One helper per eight to ten participants.
-- Project the persistent instruction slide during each lab.
-- Put reference-data and Earth Engine groups at the same tables when possible.
-  One participant may drive the watershed-specific computation while teammates
-  audit provenance, spatial coverage, and assumptions.
+Use `gee/01_watershed_land_surface.js` in the Code Editor.
 
-## Lab artifacts
+| Minutes | Operation |
+|---:|---|
+| 0–3 | Identify the script, map, Console, Inspector, and Layers panel |
+| 3–7 | Define the point and select a HUC12 `Feature` from a `FeatureCollection` |
+| 7–12 | Open the NLCD `ImageCollection`; filter, select, and clip bands |
+| 12–16 | Add land cover and imperviousness over the hybrid basemap |
+| 16–19 | Calculate grouped class area with `pixelArea` and a reducer |
+| 19–20 | Explain deferred execution and launch the optional exploration |
 
-Lab 1: three runoff estimates and one defended convention.
+The HUC12 is a teaching geometry, not a substitute for outlet-based watershed
+delineation. Investigation 2 treats delineation and boundary verification in
+detail.
 
-Lab 2: watershed boundary, composite CN, unmapped percentage, and provenance.
+During the exploration interval, display these options:
 
-Lab 3: trajectory, condition band, signal-to-assumption ratio, and a six-line
-reporting statement.
+1. change the NLCD year;
+2. move the selection point;
+3. inspect imperviousness values; or
+4. add and describe another catalog dataset.
 
-## Release sequence
+Participants may run the script directly, work in pairs, or review the
+demonstrated outputs before selecting an investigation.
 
-Keep solution notebooks instructor-only before the event. Release each solution
-after its report-out, or publish all solutions in the post-workshop release.
-Do not rely on a hidden branch in a public repository; public branches are
-visible.
+## Investigation launch: ten minutes
+
+Present the four questions and ask participants to select one primary
+investigation:
+
+1. CN equation and runoff response;
+2. spatial CN for a watershed;
+3. land-cover change and design runoff; or
+4. event-derived CN and antecedent state.
+
+Ask participants to run the common setup, complete the minimum result, and then
+select an extension. Groups may use versioned workshop data or apply supported
+sections through Earth Engine. Both approaches require the same provenance and
+interpretation record.
+
+## Participant-directed investigations: ninety minutes
+
+Use three facilitation checkpoints without interrupting the room:
+
+- **20 minutes:** confirm that every group has a question, working dataset, and
+  baseline result.
+- **50 minutes:** ask which analytical choice the group is changing and what is
+  being held constant.
+- **75 minutes:** direct groups to the six-part reporting record and select one
+  figure or table for discussion.
+
+Suggested instructor distribution:
+
+- John emphasizes equation behavior, compositing, event inversion, lambda, and
+  calibration.
+- Saurav emphasizes Earth Engine, boundary verification, land cover, soils,
+  temporal comparison, and spatial provenance.
+- Both instructors address interpretation, uncertainty, and reporting.
+
+## Report-outs: thirty minutes
+
+Use approximately five minutes for each investigation represented in the room,
+then reserve ten minutes for cross-investigation synthesis. Each report-out
+contains:
+
+1. analytical question;
+2. watershed or dataset;
+3. data source and equation convention;
+4. assumption or comparison examined;
+5. principal quantitative result; and
+6. interpretation and limitation.
+
+## Feedback and close
+
+Project the anonymous feedback-form link during the final fifteen minutes:
+
+<https://docs.google.com/forms/d/e/1FAIpQLSeavvSSEWlNcENVxCJZW9g22rztcJpi2Cd6ba6smZ9JX9toSA/viewform>
+
+The form evaluates the theory section, Earth Engine introduction, investigation
+period, learning outcome, relevance, time allocation, topics needing more time,
+and optional written comments.
 
 ## Before the dry run
 
-1. Test the readiness notebook from a personal Google account and an
-   organization-managed account.
-2. Run all prepared-data branches in fresh Colab runtimes.
-3. Run the live branch of Labs 2 and 3 with two different Earth Engine projects.
-4. Test all public links while signed out of GitHub and Google Drive.
-5. Rehearse the full four hours with two participants who have not seen the material.
-6. Load an offline copy of notebooks, `cnkit.py`, and the data pack onto USB media.
+1. Rehearse the ten-minute opening and thirty-minute theory block.
+2. Run the GEE teaching script from a newly opened Code Editor session.
+3. Test the optional exploration prompts with two accounts.
+4. Execute every notebook from a fresh Colab runtime using reference data.
+5. Run supported Earth Engine sections with two different projects.
+6. Confirm all public links while signed out of GitHub.
+7. Verify that the feedback form accepts a test response and remove the test
+   response before the workshop.
+8. Load offline copies of the notebooks, `cnkit.py`, and the data pack onto USB
+   media.

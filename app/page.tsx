@@ -4,7 +4,7 @@ import { renderWorkshopMarkup } from "../content/render.mjs";
 export const metadata: Metadata = {
   title: "Modern Curve Number Hydrology · 2026 workshop",
   description:
-    "A workshop on curve-number theory, spatial estimation, and Earth Observation applications.",
+    "A workshop on Curve Number theory, Google Earth Engine, and participant-directed hydrologic investigations.",
 };
 
 export default function Home() {
