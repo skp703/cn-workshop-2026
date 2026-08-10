@@ -32,6 +32,8 @@ Curve Number estimation in greater methodological detail.
 - [Beginner's Cookbook](https://developers.google.com/earth-engine/tutorials/community/beginners-cookbook)
 - [Earth Engine data catalog](https://developers.google.com/earth-engine/datasets)
 - [Spatial Thoughts Earth Engine course](https://spatialthoughts.com/courses/google-earth-engine/)
+- [Cheat Sheet: Remote Sensing Products for Hydrology](https://docs.google.com/spreadsheets/d/1TOGPuKGB8DpxOQIIbYbbAn70zAOI6yo824RUVog-OXo/edit?gid=0#gid=0) 
+
 
 ## Data sources
 
