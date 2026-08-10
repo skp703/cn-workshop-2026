@@ -11,7 +11,7 @@ the Earth Engine object model through one hydrologically relevant question:
 
 1. Open the [Earth Engine Code Editor](https://code.earthengine.google.com/).
 2. Create a new script.
-3. Copy the contents of `01_watershed_land_surface.js` into the editor.
+3. Copy the contents of [01_watershed_land_surface.js](https://github.com/skp703/cn-workshop-2026/blob/main/gee/01_watershed_land_surface.js) into the editor.
 4. Run the script and inspect the map, Console, Layers panel, and pixel values.
 5. During the exploration interval, complete one of the extension prompts at
    the end of the script.
