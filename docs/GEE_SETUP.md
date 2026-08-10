@@ -36,7 +36,7 @@ The check authenticates your account, initializes Earth Engine with the project
 ID, and asks the service to evaluate a small arithmetic expression. A printed
 value of `42` confirms that the notebook can submit Earth Engine requests.
 
-Before the session, also open `gee/README.md`. The guided script is intentionally
+Before the session, also open `https://github.com/skp703/cn-workshop-2026/tree/main/gee`. The guided script is intentionally
 short and remains available for continued experimentation after the workshop.
 
 ## Project permissions

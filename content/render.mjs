@@ -206,7 +206,7 @@ export function renderWorkshopMarkup() {
             <strong>Guided Earth Engine exercise</strong>
             <p>The twenty-minute script introduces geometries, collections, visualization, pixel inspection, and grouped area reduction. The exploration interval provides four optional modifications.</p>
           </div>
-          <a class="button button-light" href="./gee/README.md">Open the exercise</a>
+          <a class="button button-light" href="https://github.com/skp703/cn-workshop-2026/tree/main/gee">Open the exercise</a>
         </div>
       </section>
 
